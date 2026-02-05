@@ -31,16 +31,27 @@ onMounted(async () => {
     return
   }
 
-  // Handle OAuth callback - extract session from URL hash
+  // Handle OAuth PKCE callback - exchange code for session
+  const code = route.query.code as string
+  if (code) {
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    if (exchangeError) {
+      error.value = exchangeError.message
+      return
+    }
+  }
+
+  // Handle OAuth implicit callback - extract session from URL hash
   const hash = window.location.hash
   if (hash && hash.includes('access_token')) {
     const { error: sessionError } = await supabase.auth.getSession()
     if (sessionError) {
       error.value = sessionError.message
+      return
     }
   }
 
-  // Fallback: if user is already set, redirect
+  // Redirect if user is set
   if (user.value) {
     navigateTo('/')
   }
