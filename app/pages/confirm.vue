@@ -12,12 +12,11 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
 const error = ref<string | null>(null)
 
-onMounted(async () => {
+onMounted(() => {
   // Check for errors in query params
   const errorCode = route.query.error_code as string
   const errorDescription = route.query.error_description as string
@@ -31,27 +30,8 @@ onMounted(async () => {
     return
   }
 
-  // Handle OAuth PKCE callback - exchange code for session
-  const code = route.query.code as string
-  if (code) {
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-    if (exchangeError) {
-      error.value = exchangeError.message
-      return
-    }
-  }
-
-  // Handle OAuth implicit callback - extract session from URL hash
-  const hash = window.location.hash
-  if (hash && hash.includes('access_token')) {
-    const { error: sessionError } = await supabase.auth.getSession()
-    if (sessionError) {
-      error.value = sessionError.message
-      return
-    }
-  }
-
-  // Redirect if user is set
+  // @nuxtjs/supabase will automatically handle the OAuth callback
+  // Just redirect if user is already set
   if (user.value) {
     navigateTo('/')
   }
