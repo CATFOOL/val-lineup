@@ -1,12 +1,16 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - SUPABASE_URL=${SUPABASE_URL:-http://127.0.0.1:8000}
+        - SUPABASE_KEY=${SUPABASE_KEY}
     container_name: val-lineup
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
       - PORT=3000
-      - SUPABASE_URL=${SUPABASE_URL:-http://localhost:8000}
+      - SUPABASE_URL=${SUPABASE_URL:-http://127.0.0.1:8000}
       - SUPABASE_KEY=${SUPABASE_KEY}
     restart: unless-stopped
     network_mode: host

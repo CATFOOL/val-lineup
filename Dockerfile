@@ -3,6 +3,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# 构建时需要的环境变量
+ARG SUPABASE_URL
+ARG SUPABASE_KEY
+ENV SUPABASE_URL=${SUPABASE_URL}
+ENV SUPABASE_KEY=${SUPABASE_KEY}
+
 # 复制依赖文件
 COPY package*.json ./
 
