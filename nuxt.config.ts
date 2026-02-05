@@ -8,7 +8,12 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/', '/maps/*', '/lineups/*', '/collections/*', '/bookmarks/*', '/register', '/login', '/confirm', '/check-email', '/agents/*'],
+      exclude: ['/', '/maps/*', '/lineups/*', '/collections/*', '/bookmarks/*', '/register', '/login', '/confirm', '/check-email', '/agents/*', '/profile/*'],
+      cookieRedirect: false,
+    },
+    cookieOptions: {
+      sameSite: 'lax',
+      secure: false, // 如果使用 HTTPS，改为 true
     },
   },
 })

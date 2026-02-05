@@ -12,11 +12,12 @@
 </template>
 
 <script setup lang="ts">
+const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
 const error = ref<string | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
   // Check for errors in query params
   const errorCode = route.query.error_code as string
   const errorDescription = route.query.error_description as string
@@ -30,8 +31,23 @@ onMounted(() => {
     return
   }
 
-  // @nuxtjs/supabase will automatically handle the OAuth callback
-  // Just redirect if user is already set
+  // Wait a moment for @nuxtjs/supabase to process the callback
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  // If still no user, try to get session manually
+  if (!user.value) {
+    const { data, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) {
+      error.value = sessionError.message
+      return
+    }
+    if (data.session) {
+      navigateTo('/')
+      return
+    }
+  }
+
+  // If user is set, redirect
   if (user.value) {
     navigateTo('/')
   }
