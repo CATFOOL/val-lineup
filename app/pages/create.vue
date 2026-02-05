@@ -152,8 +152,8 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const supabase = useSupabaseClient<any>()
 const user = useSupabaseUser()
+const { createLineup, fileToBase64 } = useLineupApi()
 
 const { form, agents, maps, selectedAgentAbilities, abilitySlotToKey, processFiles, revokePreviewUrl } = useLineupForm()
 
@@ -202,64 +202,31 @@ const handleSubmit = useDebounceFn(async () => {
   submitting.value = true
   error.value = ''
 
-  const userId = (user.value as any).id || (user.value as any).sub
-
   try {
-    // 1. Create lineup record
-    const { data: lineup, error: lineupError } = await supabase
-      .from('lineups')
-      .insert({
-        title: form.title,
-        description: form.description || null,
-        agent_uuid: form.agent_uuid,
-        map_uuid: form.map_uuid,
-        user_id: userId,
-        side: form.side || null,
-        site: form.site || null,
-        ability: form.ability || null,
-        is_published: form.is_published
-      })
-      .select()
-      .single()
+    // Convert files to base64
+    const mediaPayload = await Promise.all(
+      mediaItems.value.map(async (item) => ({
+        file: await fileToBase64(item.file),
+        filename: item.file.name,
+        type: item.type,
+        description: item.description || undefined,
+        is_cover: item.is_cover,
+      }))
+    )
 
-    if (lineupError) throw lineupError
+    const result = await createLineup({
+      title: form.title,
+      description: form.description || undefined,
+      agent_uuid: form.agent_uuid,
+      map_uuid: form.map_uuid,
+      side: form.side || undefined,
+      site: form.site || undefined,
+      ability: form.ability || undefined,
+      is_published: form.is_published,
+      media: mediaPayload,
+    })
 
-    // 2. Upload media files and create records
-    for (let i = 0; i < mediaItems.value.length; i++) {
-      const item = mediaItems.value[i]
-      if (!item) continue
-      const ext = item.file.name.split('.').pop()
-      const fileName = `${userId}/${lineup.id}/${i}.${ext}`
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('lineup-media')
-        .upload(fileName, item.file)
-
-      if (uploadError) throw uploadError
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('lineup-media')
-        .getPublicUrl(fileName)
-
-      // Create media record
-      const { error: mediaError } = await supabase
-        .from('lineup_media')
-        .insert({
-          lineup_id: lineup.id,
-          media_type: item.type,
-          url: urlData.publicUrl,
-          description: item.description || null,
-          sort_order: i,
-          is_cover: item.is_cover
-        })
-
-      if (mediaError) throw mediaError
-    }
-
-    // Navigate to the new lineup
-    navigateTo(`/lineups/${lineup.id}`)
+    navigateTo(`/lineups/${result.lineup_id}`)
   } catch (e: any) {
     error.value = e.message || 'Failed to create lineup'
     submitting.value = false

@@ -281,6 +281,7 @@ const route = useRoute()
 const supabase = useSupabaseClient<any>()
 const user = useSupabaseUser()
 const { getAgent, getMap, abilitySlotToKey } = useValorantApi()
+const { deleteLineup, toggleLike: toggleLikeApi } = useLineupApi()
 
 const currentIndex = ref(0)
 const likeLoading = ref(false)
@@ -358,7 +359,7 @@ const currentUserId = computed(() => (user.value as any)?.id ?? (user.value as a
 const isOwner = computed(() => !!lineup.value && !!currentUserId.value && lineup.value.user_id === currentUserId.value)
 
 // Fetch likes with SSR
-const { data: likesData, refresh: refreshLikes } = await useAsyncData(
+const { data: likesData } = await useAsyncData(
   `lineup-likes-${lineupId}`,
   async () => {
     if (!lineup.value) return { count: 0, isLiked: false }
@@ -432,15 +433,13 @@ async function executeDelete() {
   deleteLoading.value = true
   deleteError.value = null
 
-  const { error } = await supabase.from('lineups').delete().eq('id', lineup.value.id)
-
-  if (error) {
-    deleteError.value = error.message
+  try {
+    await deleteLineup(lineup.value.id)
+    await navigateTo('/profile')
+  } catch (e: any) {
+    deleteError.value = e.message || 'Failed to delete'
     deleteLoading.value = false
-    return
   }
-
-  await navigateTo('/profile')
 }
 
 // Fetch agent and map from Valorant API
@@ -482,23 +481,15 @@ const toggleLike = async () => {
 
   likeLoading.value = true
 
-  if (isLiked.value) {
-    await supabase
-      .from('lineup_likes')
-      .delete()
-      .eq('lineup_id', lineup.value.id)
-      .eq('user_id', currentUserId.value)
-  } else {
-    await supabase
-      .from('lineup_likes')
-      .insert({
-        lineup_id: lineup.value.id,
-        user_id: currentUserId.value
-      })
+  try {
+    const result = await toggleLikeApi(lineup.value.id)
+    // Update local state with server response
+    likesData.value = { count: result.count, isLiked: result.liked }
+  } catch (e) {
+    console.error('Failed to toggle like:', e)
+  } finally {
+    likeLoading.value = false
   }
-
-  await refreshLikes()
-  likeLoading.value = false
 }
 
 const formatDate = (date: string) => {

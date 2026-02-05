@@ -4,10 +4,11 @@
 
 1. [服务器要求](#服务器要求)
 2. [Supabase 部署](#supabase-部署)
-3. [项目部署](#项目部署)
-4. [Git 更新流程](#git-更新流程)
-5. [常用命令](#常用命令)
-6. [故障排查](#故障排查)
+3. [OAuth 配置（Discord/Google）](#oauth-配置discordgoogle)
+4. [项目部署](#项目部署)
+5. [Git 更新流程](#git-更新流程)
+6. [常用命令](#常用命令)
+7. [故障排查](#故障排查)
 
 ---
 
@@ -67,7 +68,7 @@ SMTP_ADMIN_EMAIL=发件邮箱
 SMTP_HOST=smtp.qcloudmail.com
 SMTP_PORT=465
 SMTP_USER=SecretKey (API key)
-SMTP_PASS=邮箱SMTP授权码
+SMTP_PASS=SMTP 服务器的登录账号
 SMTP_SENDER_NAME=发件人名称
 ```
 
@@ -104,6 +105,109 @@ curl http://127.0.0.1:8000/rest/v1/
 | Kong API | 8000 | Supabase API 入口 |
 | Studio | 3000 | 管理面板（建议改为 3001） |
 | PostgreSQL | 5432 | 数据库 |
+
+---
+
+## OAuth 配置（Discord/Google）
+
+### 1. 创建 Discord 应用
+
+1. 访问 [Discord Developer Portal](https://discord.com/developers/applications)
+2. 点击 **New Application**，输入应用名称
+3. 进入 **OAuth2 > General**
+4. 添加 Redirect URL：
+   ```
+   http://你的服务器IP:8000/auth/v1/callback
+   ```
+   > 如果使用域名：`https://api.你的域名/auth/v1/callback`
+5. 复制 **Client ID** 和 **Client Secret**
+
+### 2. 创建 Google 应用
+
+1. 访问 [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. 创建项目（如果没有）
+3. 点击 **创建凭据 > OAuth 客户端 ID**
+4. 应用类型选择 **Web 应用**
+5. 添加授权重定向 URI：
+   ```
+   http://你的服务器IP:8000/auth/v1/callback
+   ```
+   > 如果使用域名：`https://api.你的域名/auth/v1/callback`
+6. 复制 **客户端 ID** 和 **客户端密钥**
+
+### 3. 配置 Supabase
+
+编辑 `~/supabase/docker/docker-compose.yml`，找到 `auth` 服务，在 `environment` 部分添加：
+
+```yaml
+  auth:
+    # ... 其他配置 ...
+    environment:
+      # ... 现有环境变量 ...
+
+      # Discord OAuth
+      GOTRUE_EXTERNAL_DISCORD_ENABLED: "true"
+      GOTRUE_EXTERNAL_DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      GOTRUE_EXTERNAL_DISCORD_SECRET: ${DISCORD_CLIENT_SECRET}
+      GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
+
+      # Google OAuth
+      GOTRUE_EXTERNAL_GOOGLE_ENABLED: "true"
+      GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
+```
+
+### 4. 添加环境变量
+
+编辑 `~/supabase/docker/.env`，添加：
+
+```env
+############
+# OAuth 配置
+############
+# Discord
+DISCORD_CLIENT_ID=你的Discord_Client_ID
+DISCORD_CLIENT_SECRET=你的Discord_Client_Secret
+
+# Google
+GOOGLE_CLIENT_ID=你的Google_Client_ID
+GOOGLE_CLIENT_SECRET=你的Google_Client_Secret
+```
+
+### 5. 重启 Supabase
+
+```bash
+cd ~/supabase/docker
+docker-compose down
+docker-compose up -d
+```
+
+### 6. 验证配置
+
+```bash
+# 检查 auth 容器环境变量
+docker exec supabase-auth env | grep -E "DISCORD|GOOGLE"
+
+# 应该看到类似输出：
+# GOTRUE_EXTERNAL_DISCORD_ENABLED=true
+# GOTRUE_EXTERNAL_DISCORD_CLIENT_ID=xxxxx
+# ...
+```
+
+### 常见问题
+
+**"Unsupported provider: provider is not enabled"**
+- 检查 `docker-compose.yml` 中是否正确添加了 `GOTRUE_EXTERNAL_xxx_ENABLED: "true"`
+- 确保重启了 Supabase
+
+**"OAuth2 redirect_uri 无效"**
+- 检查 Discord/Google 后台配置的回调地址是否与 `API_EXTERNAL_URL` 一致
+- 回调地址必须完全匹配，包括协议（http/https）和端口
+
+**登录后卡在 "Confirming your account..."**
+- 检查 `SITE_URL` 是否正确指向前端地址
+- 检查 `GOTRUE_URI_ALLOW_LIST` 是否包含前端地址
 
 ---
 

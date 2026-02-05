@@ -170,6 +170,7 @@ definePageMeta({ middleware: 'auth' })
 const route = useRoute()
 const supabase = useSupabaseClient<any>()
 const user = useSupabaseUser()
+const { updateLineup, fileToBase64 } = useLineupApi()
 
 const { form, agents, maps, selectedAgentAbilities, abilitySlotToKey, processFiles, revokePreviewUrl } = useLineupForm()
 
@@ -295,64 +296,42 @@ const handleSubmit = useDebounceFn(async () => {
   submitting.value = true
   error.value = ''
   try {
-    const { error: updateError } = await supabase
-      .from('lineups')
-      .update({
-        title: form.title,
-        description: form.description || null,
-        agent_uuid: form.agent_uuid,
-        map_uuid: form.map_uuid,
-        side: form.side || null,
-        site: form.site || null,
-        ability: form.ability || null,
-        is_published: form.is_published,
-        updated_at: new Date().toISOString()
+    // Build media payload
+    const mediaPayload = await Promise.all(
+      mediaList.value.map(async (item, index) => {
+        if (item.kind === 'existing') {
+          return {
+            id: item.id,
+            type: item.media_type,
+            description: item.description || undefined,
+            is_cover: item.is_cover,
+            sort_order: index,
+          }
+        } else {
+          return {
+            file: await fileToBase64(item.file),
+            filename: item.file.name,
+            type: item.type,
+            description: item.description || undefined,
+            is_cover: item.is_cover,
+            sort_order: index,
+          }
+        }
       })
-      .eq('id', lineup.value.id)
+    )
 
-    if (updateError) throw updateError
-
-    const existingIds = mediaList.value
-      .filter((m): m is ExistingMediaItem => m.kind === 'existing')
-      .map(m => m.id)
-
-    // Delete media that were removed (existing ones no longer in list)
-    const { data: currentMedia } = await supabase
-      .from('lineup_media')
-      .select('id')
-      .eq('lineup_id', lineup.value.id)
-    const toDelete = (currentMedia ?? []).filter((m: { id: string }) => !existingIds.includes(m.id))
-    for (const m of toDelete) {
-      await supabase.from('lineup_media').delete().eq('id', m.id)
-    }
-
-    // Update sort_order and description for existing; insert new
-    const uid = currentUserId.value
-    const list = mediaList.value
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i]
-      if (!item) continue
-      if (item.kind === 'existing') {
-        await supabase
-          .from('lineup_media')
-          .update({ sort_order: i, description: item.description || null, is_cover: item.is_cover })
-          .eq('id', item.id)
-      } else {
-        const ext = item.file.name.split('.').pop()
-        const fileName = `${uid}/${lineup.value!.id}/${Date.now()}-${i}.${ext}`
-        const { error: uploadError } = await supabase.storage.from('lineup-media').upload(fileName, item.file)
-        if (uploadError) throw uploadError
-        const { data: urlData } = supabase.storage.from('lineup-media').getPublicUrl(fileName)
-        await supabase.from('lineup_media').insert({
-          lineup_id: lineup.value!.id,
-          media_type: item.type,
-          url: urlData.publicUrl,
-          description: item.description || null,
-          sort_order: i,
-          is_cover: item.is_cover
-        })
-      }
-    }
+    await updateLineup({
+      lineup_id: lineup.value.id,
+      title: form.title,
+      description: form.description || undefined,
+      agent_uuid: form.agent_uuid,
+      map_uuid: form.map_uuid,
+      side: form.side || undefined,
+      site: form.site || undefined,
+      ability: form.ability || undefined,
+      is_published: form.is_published,
+      media: mediaPayload,
+    })
 
     await navigateTo(`/lineups/${lineup.value.id}`, { replace: true })
   } catch (e: any) {
