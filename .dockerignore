@@ -1,0 +1,9 @@
+node_modules
+.nuxt
+.output
+.git
+*.md
+.env
+.env.local
+supabase/.branches
+supabase/.temp
