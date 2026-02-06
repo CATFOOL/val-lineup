@@ -361,8 +361,8 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321"
 
 # Edge Functions 配置
 # 由于 edge-runtime 1.70.1 的 JWT 验证 bug，暂时禁用自动验证

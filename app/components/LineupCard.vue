@@ -7,7 +7,7 @@
       <!-- Image thumbnail -->
       <img
         v-if="firstMedia?.media_type === 'image'"
-        :src="firstMedia.url"
+        :src="getImageUrl(firstMedia.url, 'thumbnail') ?? undefined"
         :alt="lineup.title"
         class="w-full h-full object-cover"
       />
@@ -82,6 +82,7 @@
 <script setup lang="ts">
 import type { LineupWithRelations } from '~/types/database.types'
 import type { ValorantAgent, ValorantMap } from '~/composables/useValorantApi'
+import { getImageUrl } from '~/utils/getImageUrl'
 
 const props = defineProps<{
   lineup: LineupWithRelations

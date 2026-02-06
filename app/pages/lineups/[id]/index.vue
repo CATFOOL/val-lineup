@@ -45,7 +45,7 @@
               >
                 <img
                   v-if="media.media_type === 'image'"
-                  :src="media.url"
+                  :src="getImageUrl(media.url, 'medium') ?? undefined"
                   :alt="media.description || lineup.title"
                   class="w-full h-full object-contain cursor-zoom-in select-none"
                   draggable="false"
@@ -93,7 +93,7 @@
               >
                 <img
                   v-if="media.media_type === 'image'"
-                  :src="media.url"
+                  :src="getImageUrl(media.url, 'thumbnail') ?? undefined"
                   class="w-full h-full object-cover"
                 />
                 <template v-else>
@@ -276,12 +276,14 @@
 
 <script setup lang="ts">
 import type { LineupWithRelations } from '~/types/database.types'
+import { getImageUrl } from '~/utils/getImageUrl'
 
 const route = useRoute()
 const supabase = useSupabaseClient<any>()
 const user = useSupabaseUser()
 const { getAgent, getMap, abilitySlotToKey } = useValorantApi()
 const { deleteLineup, toggleLike: toggleLikeApi } = useLineupApi()
+const { markAsDeleted } = useLineupEvents()
 
 const currentIndex = ref(0)
 const likeLoading = ref(false)
@@ -434,7 +436,9 @@ async function executeDelete() {
   deleteError.value = null
 
   try {
-    await deleteLineup(lineup.value.id)
+    const lineupIdToDelete = lineup.value.id
+    await deleteLineup(lineupIdToDelete)
+    markAsDeleted(lineupIdToDelete)
     await navigateTo('/profile')
   } catch (e: any) {
     deleteError.value = e.message || 'Failed to delete'

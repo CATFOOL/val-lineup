@@ -97,6 +97,8 @@
 </template>
 
 <script setup lang="ts">
+import { compressImage } from '~/utils/compressImage'
+
 definePageMeta({ middleware: 'auth' })
 
 const route = useRoute()
@@ -155,7 +157,7 @@ watch(collectionData, (v) => {
   existingCoverUrl.value = v.cover_url ?? null
 }, { immediate: true })
 
-function handleCoverSelect(e: Event) {
+async function handleCoverSelect(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
@@ -165,8 +167,10 @@ function handleCoverSelect(e: Event) {
     URL.revokeObjectURL(newCoverPreview.value)
   }
 
-  newCoverFile.value = file
-  newCoverPreview.value = URL.createObjectURL(file)
+  // 压缩图片
+  const compressedFile = await compressImage(file)
+  newCoverFile.value = compressedFile
+  newCoverPreview.value = URL.createObjectURL(compressedFile)
   coverRemoved.value = false
 }
 

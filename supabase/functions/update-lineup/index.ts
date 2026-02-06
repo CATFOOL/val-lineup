@@ -119,13 +119,27 @@ Deno.serve(async (req) => {
         const base64Data = item.file.includes(',') ? item.file.split(',')[1] : item.file
         const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))
 
-        const ext = item.filename.split('.').pop() || 'jpg'
+        const ext = item.filename.split('.').pop()?.toLowerCase() || 'jpg'
         const fileName = `${userId}/${body.lineup_id}/${Date.now()}-${item.sort_order}.${ext}`
+
+        const contentTypeMap: Record<string, string> = {
+          jpg: 'image/jpeg',
+          jpeg: 'image/jpeg',
+          png: 'image/png',
+          webp: 'image/webp',
+          gif: 'image/gif',
+          mp4: 'video/mp4',
+          webm: 'video/webm',
+          mov: 'video/quicktime',
+        }
+        const contentType = item.type === 'video'
+          ? (contentTypeMap[ext] || 'video/mp4')
+          : (contentTypeMap[ext] || 'image/jpeg')
 
         const { error: uploadError } = await supabase.storage
           .from('lineup-media')
           .upload(fileName, binaryData, {
-            contentType: item.type === 'video' ? 'video/mp4' : 'image/jpeg',
+            contentType,
           })
 
         if (uploadError) {
@@ -136,10 +150,15 @@ Deno.serve(async (req) => {
           .from('lineup-media')
           .getPublicUrl(fileName)
 
+        // Fix local dev URL: replace internal docker hostname with public URL
+        const publicSupabaseUrl = Deno.env.get('PUBLIC_SUPABASE_URL') || Deno.env.get('SUPABASE_URL')!
+        const internalUrl = Deno.env.get('SUPABASE_URL')!
+        const publicUrl = urlData.publicUrl.replace(internalUrl, publicSupabaseUrl)
+
         await supabase.from('lineup_media').insert({
           lineup_id: body.lineup_id,
           media_type: item.type,
-          url: urlData.publicUrl,
+          url: publicUrl,
           description: item.description || null,
           sort_order: item.sort_order,
           is_cover: item.is_cover,

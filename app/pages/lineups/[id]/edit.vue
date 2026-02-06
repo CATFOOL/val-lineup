@@ -171,6 +171,7 @@ const route = useRoute()
 const supabase = useSupabaseClient<any>()
 const user = useSupabaseUser()
 const { updateLineup, fileToBase64 } = useLineupApi()
+const { markAsUpdated } = useLineupEvents()
 
 const { form, agents, maps, selectedAgentAbilities, abilitySlotToKey, processFiles, revokePreviewUrl } = useLineupForm()
 
@@ -256,9 +257,9 @@ watch(lineupData, (v) => {
   }))
 }, { immediate: true })
 
-function addFiles(files: File[]) {
+async function addFiles(files: File[]) {
   const hasCover = mediaList.value.some(m => m.is_cover)
-  const items = processFiles(files, hasCover)
+  const items = await processFiles(files, hasCover)
   for (const item of items) {
     mediaList.value.push({
       kind: 'new',
@@ -333,6 +334,7 @@ const handleSubmit = useDebounceFn(async () => {
       media: mediaPayload,
     })
 
+    markAsUpdated(lineup.value.id)
     await navigateTo(`/lineups/${lineup.value.id}`, { replace: true })
   } catch (e: any) {
     error.value = e.message || 'Failed to save'

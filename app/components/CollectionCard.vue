@@ -7,7 +7,7 @@
       <!-- Custom cover image (priority) -->
       <img
         v-if="collection.cover_url"
-        :src="collection.cover_url"
+        :src="getImageUrl(collection.cover_url, 'thumbnail') ?? undefined"
         class="w-full h-full object-cover"
       />
       <!-- Fallback: 2x2 grid of lineup thumbnails -->
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import type { CollectionWithRelations } from '~/types/database.types'
+import { getImageUrl } from '~/utils/getImageUrl'
 
 const props = defineProps<{
   collection: CollectionWithRelations & {
@@ -71,7 +72,7 @@ const coverImages = computed(() => {
   const lineups = props.collection.cover_lineups
   if (!lineups?.length) return []
   return lineups
-    .map(l => getLineupThumbnail(l.media || []))
+    .map(l => getImageUrl(getLineupThumbnail(l.media || []), 'thumbnail'))
     .filter(Boolean)
     .slice(0, 4) as string[]
 })

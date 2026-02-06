@@ -1,4 +1,5 @@
 import type { ValorantAgent, ValorantAbility, ValorantMap } from './useValorantApi'
+import { compressImage } from '~/utils/compressImage'
 
 export interface LineupFormData {
   title: string
@@ -59,12 +60,18 @@ export const useLineupForm = () => {
   })
 
   // Process files into media items (returns items, caller decides where to store)
-  const processFiles = (files: FileList | File[], existingHasCover = false): NewMediaItem[] => {
+  // Images are automatically compressed before creating preview
+  const processFiles = async (files: FileList | File[], existingHasCover = false): Promise<NewMediaItem[]> => {
     const items: NewMediaItem[] = []
     const fileArray = Array.from(files)
+
     for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i]!
-      const type = file.type.startsWith('video/') ? 'video' : 'image'
+      const originalFile = fileArray[i]!
+      const type = originalFile.type.startsWith('video/') ? 'video' : 'image'
+
+      // 压缩图片（视频会直接返回原文件）
+      const file = await compressImage(originalFile)
+
       items.push({
         id: `media-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         file,

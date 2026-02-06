@@ -154,6 +154,7 @@ definePageMeta({
 
 const user = useSupabaseUser()
 const { createLineup, fileToBase64 } = useLineupApi()
+const { markAsCreated } = useLineupEvents()
 
 const { form, agents, maps, selectedAgentAbilities, abilitySlotToKey, processFiles, revokePreviewUrl } = useLineupForm()
 
@@ -173,9 +174,10 @@ function onKeydown(e: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKeydown))
 onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
-const addFiles = (files: File[]) => {
+const addFiles = async (files: File[]) => {
   const hasCover = mediaItems.value.some(m => m.is_cover)
-  mediaItems.value.push(...processFiles(files, hasCover))
+  const items = await processFiles(files, hasCover)
+  mediaItems.value.push(...items)
 }
 
 function setCover(id: string) {
@@ -226,6 +228,7 @@ const handleSubmit = useDebounceFn(async () => {
       media: mediaPayload,
     })
 
+    markAsCreated()
     navigateTo(`/lineups/${result.lineup_id}`)
   } catch (e: any) {
     error.value = e.message || 'Failed to create lineup'

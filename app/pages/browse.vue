@@ -250,6 +250,9 @@ const {
   clearCachedLineups
 } = useBrowseState()
 
+// Track deleted lineups to remove from cache
+const { deletedLineupIds, updatedLineupIds, hasNewLineup } = useLineupEvents()
+
 // Collections state (not persisted - will refetch)
 const browseCollections = ref<(CollectionWithRelations & { cover_lineups?: any[] })[]>([])
 const collectionsLoading = ref(false)
@@ -394,6 +397,19 @@ let collectionsObserver: IntersectionObserver | null = null
 onMounted(() => {
   // Restore scroll position when returning to this page
   restoreScrollPosition()
+
+  // Filter out any deleted lineups from cache
+  if (deletedLineupIds.value.size > 0 && lineups.value.length > 0) {
+    lineups.value = lineups.value.filter(l => !deletedLineupIds.value.has(l.id))
+  }
+
+  // If any lineup was updated or created, clear cache and refetch to get fresh data
+  if (updatedLineupIds.value.size > 0 || hasNewLineup.value) {
+    clearCachedLineups()
+    lineups.value = []
+    hasMore.value = true
+    fetchLineups()
+  }
 
   observer = new IntersectionObserver(
     (entries) => {
