@@ -24,3 +24,6 @@ logs
 !.env.example
 
 scripts/migrate-data.ts
+
+# Deploy migration record
+.migrations_applied
