@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/supabase'],
   css: ['~/assets/css/main.css'],
+  nitro: {
+    compressPublicAssets: true,
+  },
   supabase: {
     redirectOptions: {
       login: '/login',
