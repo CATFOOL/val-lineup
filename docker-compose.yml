@@ -12,6 +12,5 @@ services:
       - PORT=3000
       - SUPABASE_URL=${SUPABASE_URL:-http://127.0.0.1:8000}
       - SUPABASE_KEY=${SUPABASE_KEY}
-    ports:
-      - "0.0.0.0:3000:3000"
     restart: unless-stopped
+    network_mode: host
