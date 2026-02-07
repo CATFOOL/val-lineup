@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/', '/maps/*', '/lineups/*', '/collections/*', '/bookmarks/*', '/register', '/login', '/confirm', '/check-email', '/agents/*', '/profile/*'],
+      exclude: ['/', '/browse', '/maps/*', '/lineups/*', '/collections/*', '/bookmarks/*', '/register', '/login', '/confirm', '/check-email', '/agents/*', '/profile/*'],
       cookieRedirect: false,
     },
     cookieOptions: {
