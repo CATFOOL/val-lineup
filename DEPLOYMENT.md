@@ -6,9 +6,10 @@
 2. [Supabase 部署](#supabase-部署)
 3. [OAuth 配置（Discord/Google）](#oauth-配置discordgoogle)
 4. [项目部署](#项目部署)
-5. [Git 更新流程](#git-更新流程)
-6. [常用命令](#常用命令)
-7. [故障排查](#故障排查)
+5. [Edge Functions 部署](#edge-functions-部署)
+6. [Git 更新流程](#git-更新流程)
+7. [常用命令](#常用命令)
+8. [故障排查](#故障排查)
 
 ---
 
@@ -270,6 +271,114 @@ curl http://127.0.0.1:3000
 
 ---
 
+## Edge Functions 部署
+
+项目包含 4 个 Supabase Edge Functions：
+
+| 函数 | 功能 |
+|------|------|
+| `create-lineup` | 创建阵容并上传媒体文件 |
+| `update-lineup` | 更新阵容及媒体管理 |
+| `delete-lineup` | 删除阵容并清理存储 |
+| `toggle-like` | 切换阵容点赞状态 |
+
+### 前提条件
+
+Edge Functions 由 Supabase 自带的 `supabase-edge-functions` 容器运行（基于 Deno）。自部署 Supabase 时该容器已默认包含，无需额外安装。
+
+### 1. 确认 Edge Functions 容器运行中
+
+```bash
+docker ps | grep supabase-edge-functions
+```
+
+如果没有看到该容器，检查 Supabase 的 `docker-compose.yml` 中 `functions` 服务是否启用：
+
+```bash
+cd ~/supabase/docker
+grep -A 5 'functions' docker-compose.yml
+```
+
+### 2. 部署 Edge Functions 文件
+
+Edge Functions 位于项目的 `supabase/functions/` 目录中。需要将该目录挂载到 Supabase 的 edge-runtime 容器。
+
+编辑 `~/supabase/docker/docker-compose.yml`，找到 `edge-runtime`（或 `functions`）服务，添加 volumes 挂载：
+
+```yaml
+  edge-runtime:
+    # ... 其他配置 ...
+    volumes:
+      - /www/wwwroot/val-lineup/supabase/functions:/home/deno/functions
+```
+
+> 挂载路径中 `/home/deno/functions` 是 edge-runtime 容器内的默认函数目录，请根据实际 Supabase 版本确认。
+
+### 3. 配置 Edge Functions 环境变量
+
+Edge Functions 需要以下环境变量，在 `~/supabase/docker/.env` 中确认或添加：
+
+```env
+############
+# Edge Functions 环境变量
+############
+SUPABASE_URL=http://kong:8000
+SUPABASE_ANON_KEY=你的ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=你的SERVICE_ROLE_KEY
+```
+
+> Edge Functions 内部通过 Docker 网络访问 Supabase API，所以 `SUPABASE_URL` 使用容器名 `kong` 而非 `127.0.0.1`。
+
+### 4. 重启 Edge Functions 容器
+
+```bash
+docker restart supabase-edge-functions
+```
+
+### 5. 验证 Edge Functions
+
+```bash
+# 列出已部署的 Edge Functions
+docker exec supabase-edge-functions ls /home/deno/functions
+
+# 确认端点可达（应返回 {"msg":"missing function name in request"}）
+curl http://127.0.0.1:8000/functions/v1/
+
+# 测试某个函数（需要 Authorization header）
+curl -X POST http://127.0.0.1:8000/functions/v1/toggle-like \
+  -H "Authorization: Bearer 你的ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"lineupId": "test-id"}'
+```
+
+### 6. JWT 验证说明
+
+当前 `supabase/config.toml` 中所有函数的 `verify_jwt` 设置为 `false`（因为 edge-runtime 1.70.1 存在 JWT 验证 bug）。函数内部通过代码手动验证用户身份：
+
+```toml
+[functions.create-lineup]
+verify_jwt = false
+```
+
+> 如果升级 Supabase 后 JWT 验证 bug 已修复，可以将 `verify_jwt` 改回 `true`。
+
+### Edge Functions 更新流程
+
+由于使用了 volume 挂载，更新 Edge Functions 只需：
+
+```bash
+# 拉取最新代码（函数文件随代码更新）
+cd /www/wwwroot/val-lineup
+git pull origin main
+
+# 重启 Edge Functions 使更改生效
+docker restart supabase-edge-functions
+```
+
+`deploy.sh` 脚本已包含此步骤（第 4 步），日常更新无需手动操作。
+
+---
+
 ## Git 更新流程
 
 ### 日常更新（本地修改后）
@@ -290,26 +399,13 @@ docker-compose up -d --build
 
 ### 一键更新脚本
 
-在服务器创建 `deploy.sh`：
+项目根目录已提供 `deploy.sh`，支持以下步骤：
 
-```bash
-#!/bin/bash
-set -e
-
-cd /www/wwwroot/val-lineup
-
-echo ">>> 拉取最新代码..."
-git pull origin main
-
-echo ">>> 重新构建并启动..."
-docker-compose up -d --build
-
-echo ">>> 清理旧镜像..."
-docker image prune -f
-
-echo ">>> 部署完成！"
-docker ps | grep val-lineup
-```
+1. 拉取最新代码
+2. 自动执行新的数据库迁移
+3. 重新构建前端容器
+4. 重启 Edge Functions runtime
+5. 清理旧 Docker 镜像
 
 赋予执行权限：
 ```bash
@@ -433,17 +529,22 @@ curl http://服务器IP:8000/rest/v1/
 用户浏览器
     │
     ▼
-┌─────────────────────────────────────┐
-│           服务器                     │
-│                                     │
-│  ┌─────────────┐  ┌──────────────┐  │
-│  │ Nuxt App    │  │  Supabase    │  │
-│  │ (Port 3000) │◄─│  (Port 8000) │  │
-│  └─────────────┘  └──────────────┘  │
-│                          │          │
-│                   ┌──────┴──────┐   │
-│                   │ PostgreSQL  │   │
-│                   │ (Port 5432) │   │
-│                   └─────────────┘   │
-└─────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│           服务器                               │
+│                                              │
+│  ┌─────────────┐  ┌───────────────────────┐  │
+│  │ Nuxt App    │  │      Supabase         │  │
+│  │ (Port 3000) │◄─│    (Port 8000)        │  │
+│  └─────────────┘  │                       │  │
+│                    │  ┌─────────────────┐  │  │
+│                    │  │  Edge Functions  │  │  │
+│                    │  │  (Deno Runtime)  │  │  │
+│                    │  └─────────────────┘  │  │
+│                    │                       │  │
+│                    │  ┌─────────────────┐  │  │
+│                    │  │   PostgreSQL    │  │  │
+│                    │  │  (Port 5432)    │  │  │
+│                    │  └─────────────────┘  │  │
+│                    └───────────────────────┘  │
+└──────────────────────────────────────────────┘
 ```

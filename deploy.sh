@@ -58,12 +58,12 @@ docker compose up -d --build
 # ---- 4. 重启 Supabase Edge Functions（如有更新） ----
 echo ""
 echo ">>> [4/5] 重启 Edge Functions runtime..."
-EDGE_CONTAINER=$(docker ps --format '{{.Names}}' | grep -i 'edge-runtime' || true)
+EDGE_CONTAINER=$(docker ps --format '{{.Names}}' | grep -i 'supabase-edge-functions' || true)
 if [ -n "$EDGE_CONTAINER" ]; then
   docker restart "$EDGE_CONTAINER"
   echo "    Edge runtime 已重启: $EDGE_CONTAINER"
 else
-  echo "    未找到 edge-runtime 容器，跳过"
+  echo "    未找到 supabase-edge-functions 容器，跳过"
 fi
 
 # ---- 5. 清理 ----
