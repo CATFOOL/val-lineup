@@ -24,6 +24,7 @@ logs
 !.env.example
 
 scripts/migrate-data.ts
+scripts/recompress-media.ts
 
 # Deploy migration record
 .migrations_applied
