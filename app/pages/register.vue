@@ -59,9 +59,13 @@
               v-model="username"
               type="text"
               required
-              class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-colors"
+              class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border transition-colors focus:outline-none"
+              :class="usernameError ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : usernameAvailable ? 'border-green-500 focus:border-green-500 focus:ring-1 focus:ring-green-500' : 'border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500'"
               placeholder="Your Username"
             />
+            <p v-if="usernameChecking" class="text-gray-400 text-xs mt-1">Checking...</p>
+            <p v-else-if="usernameError" class="text-red-400 text-xs mt-1">{{ usernameError }}</p>
+            <p v-else-if="usernameAvailable" class="text-green-400 text-xs mt-1">Username is available</p>
           </div>
 
           <div>
@@ -98,7 +102,7 @@
 
           <button
             type="submit"
-            :disabled="loading"
+            :disabled="loading || !!usernameError || usernameChecking"
             class="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition-colors"
           >
             <span v-if="loading" class="flex items-center justify-center gap-2">
@@ -137,6 +141,40 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
+const usernameError = ref('')
+const usernameAvailable = ref(false)
+const usernameChecking = ref(false)
+
+let usernameCheckTimer: ReturnType<typeof setTimeout> | null = null
+watch(username, (val) => {
+  usernameAvailable.value = false
+  usernameError.value = ''
+  if (usernameCheckTimer) clearTimeout(usernameCheckTimer)
+  const trimmed = val.trim()
+  if (!trimmed) return
+  if (trimmed.length < 2) {
+    usernameError.value = 'Username must be at least 2 characters'
+    return
+  }
+  if (!/^[a-zA-Z0-9_\-]+$/.test(trimmed)) {
+    usernameError.value = 'Only letters, numbers, underscores and hyphens allowed'
+    return
+  }
+  usernameChecking.value = true
+  usernameCheckTimer = setTimeout(async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', trimmed)
+      .single()
+    usernameChecking.value = false
+    if (data) {
+      usernameError.value = 'Username is already taken'
+    } else {
+      usernameAvailable.value = true
+    }
+  }, 400)
+})
 
 const signInWithGoogle = async () => {
   loading.value = true
@@ -177,6 +215,12 @@ const handleRegister = async () => {
   error.value = ''
   success.value = ''
 
+  if (usernameError.value || usernameChecking.value) {
+    error.value = usernameError.value || 'Please wait for username check'
+    loading.value = false
+    return
+  }
+
   const { data, error: authError } = await supabase.auth.signUp({
     email: email.value,
     password: password.value,
@@ -188,7 +232,11 @@ const handleRegister = async () => {
   })
 
   if (authError) {
-    error.value = authError.message
+    if (authError.message === 'User already registered') {
+      error.value = 'This email is already registered. Please sign in instead.'
+    } else {
+      error.value = authError.message
+    }
     loading.value = false
     return
   }
