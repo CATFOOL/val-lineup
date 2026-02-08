@@ -72,114 +72,19 @@
     </div>
 
     <!-- Filter Panel -->
-    <div v-if="profile && activeTab !== 'collections' && activeTab !== 'subscribed' && activeTab !== 'bookmarked'" class="bg-gray-800/50 rounded-xl p-6 mb-8">
-      <div class="flex gap-8">
-        <!-- Map Filter -->
-        <div class="w-36 flex-shrink-0 border-r border-gray-700 pr-6">
-          <h3 class="text-sm font-medium text-gray-400 mb-3">Map</h3>
-          <div class="map-scroll-container space-y-1 max-h-[350px]">
-            <button
-              @click="updateFilter('map', '')"
-              class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-              :class="filters.map === '' ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'"
-            >
-              Any
-            </button>
-            <button
-              v-for="map in maps"
-              :key="map.uuid"
-              @click="updateFilter('map', map.uuid)"
-              class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-              :class="filters.map === map.uuid ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'"
-            >
-              {{ map.displayName }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Right Side Filters -->
-        <div class="flex-1 space-y-5">
-          <!-- Search -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-400 mb-3">Search</h3>
-            <input
-              :value="filters.search"
-              @input="updateFilter('search', ($event.target as HTMLInputElement).value)"
-              type="text"
-              placeholder="Search by title or description..."
-              class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-            />
-          </div>
-
-          <!-- Agent Filter -->
-          <div>
-            <h3 class="text-sm font-medium text-gray-400 mb-3">Agent</h3>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="agent in agents"
-                :key="agent.uuid"
-                @click="selectAgent(agent.uuid)"
-                class="w-12 h-12 rounded-md overflow-hidden border-2 transition-all"
-                :class="filters.agent === agent.uuid ? 'border-red-500' : 'border-transparent opacity-50 hover:opacity-100'"
-                :title="agent.displayName"
-              >
-                <img :src="agent.displayIcon" :alt="agent.displayName" class="w-full h-full object-cover" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Ability Filter -->
-          <div v-if="selectedAgentAbilities.length">
-            <h3 class="text-sm font-medium text-gray-400 mb-3">Ability</h3>
-            <div class="flex gap-2">
-              <button
-                v-for="ability in selectedAgentAbilities"
-                :key="ability.slot"
-                @click="toggleAbility(ability.slot)"
-                class="w-12 h-12 rounded-md overflow-hidden border-2 transition-all bg-gray-700 flex items-center justify-center"
-                :class="filters.abilities.includes(ability.slot) ? 'border-red-500' : 'border-transparent opacity-50 hover:opacity-100'"
-                :title="`${abilitySlotToKey(ability.slot)} - ${ability.displayName}`"
-              >
-                <img v-if="ability.displayIcon" :src="ability.displayIcon" :alt="ability.displayName" class="w-8 h-8 object-contain" />
-                <span v-else class="text-white text-xs">{{ abilitySlotToKey(ability.slot) }}</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Site & Side Filters Row -->
-          <div class="flex gap-8">
-            <div>
-              <h3 class="text-sm font-medium text-gray-400 mb-3">Site</h3>
-              <div class="flex gap-1.5">
-                <button
-                  v-for="site in sites"
-                  :key="site.value"
-                  @click="toggleSite(site.value)"
-                  class="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-                  :class="filters.site === site.value ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
-                >
-                  {{ site.label }}
-                </button>
-              </div>
-            </div>
-            <div>
-              <h3 class="text-sm font-medium text-gray-400 mb-3">Side</h3>
-              <div class="flex gap-1.5">
-                <button
-                  v-for="side in sides"
-                  :key="side.value"
-                  @click="toggleSide(side.value)"
-                  class="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-                  :class="filters.side === side.value ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
-                >
-                  {{ side.label }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <LineupFilterPanel
+      v-if="profile && activeTab !== 'collections' && activeTab !== 'subscribed' && activeTab !== 'bookmarked'"
+      :filters="filters"
+      :agents="agents"
+      :maps="maps"
+      :selected-agent-abilities="selectedAgentAbilities"
+      :ability-slot-to-key="abilitySlotToKey"
+      @update-filter="updateFilter"
+      @select-agent="selectAgent"
+      @toggle-ability="toggleAbility"
+      @toggle-site="toggleSite"
+      @toggle-side="toggleSide"
+    />
 
     <!-- Results -->
     <div v-if="profile && (activeTab === 'collections' || activeTab === 'subscribed')">
@@ -447,8 +352,6 @@ const {
   agentsMap,
   mapsMap,
   selectedAgentAbilities,
-  sites,
-  sides,
   updateFilter,
   selectAgent,
   toggleAbility,
@@ -456,7 +359,6 @@ const {
   toggleSide,
   hasActiveFilters,
   clearFilters,
-  applyFiltersToQuery,
   abilitySlotToKey
 } = useLineupFilters({
   persistKey: `profile-filters-${username}`,
@@ -1016,37 +918,3 @@ const formatDate = (date: string) => {
   })
 }
 </script>
-
-<style scoped>
-.map-scroll-container {
-  scrollbar-width: thin;
-  scrollbar-color: #4b5563 #1f2937;
-  scrollbar-gutter: stable;
-  padding-right: 4px;
-  overflow-y: scroll !important;
-}
-
-.map-scroll-container::-webkit-scrollbar {
-  width: 6px;
-  -webkit-appearance: none;
-  display: block !important;
-}
-
-.map-scroll-container::-webkit-scrollbar-track:vertical {
-  display: block;
-}
-
-.map-scroll-container::-webkit-scrollbar-track {
-  background: #1f2937;
-  border-radius: 3px;
-}
-
-.map-scroll-container::-webkit-scrollbar-thumb {
-  background-color: #4b5563;
-  border-radius: 3px;
-}
-
-.map-scroll-container::-webkit-scrollbar-thumb:hover {
-  background-color: #6b7280;
-}
-</style>
