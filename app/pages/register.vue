@@ -11,7 +11,9 @@
       </div>
 
       <!-- Card -->
-      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8">
+      <div
+        class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8"
+      >
         <!-- OAuth Buttons -->
         <div class="space-y-3 mb-6">
           <button
@@ -57,17 +59,21 @@
         <!-- Divider -->
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-600"/>
+            <div class="w-full border-t border-gray-600" />
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-gray-800/50 text-gray-400">or register with email</span>
+            <span class="px-4 bg-gray-800/50 text-gray-400"
+              >or register with email</span
+            >
           </div>
         </div>
 
         <!-- Email Form -->
         <form class="space-y-4" @submit.prevent="handleRegister">
           <div>
-            <label class="block text-gray-300 text-sm font-medium mb-2">Username</label>
+            <label class="block text-gray-300 text-sm font-medium mb-2"
+              >Username</label
+            >
             <input
               v-model="username"
               type="text"
@@ -81,27 +87,38 @@
                     : 'border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500'
               "
               placeholder="Your Username"
+            />
+            <p v-if="usernameChecking" class="text-gray-400 text-xs mt-1">
+              Checking...
+            </p>
+            <p v-else-if="usernameError" class="text-red-400 text-xs mt-1">
+              {{ usernameError }}
+            </p>
+            <p
+              v-else-if="usernameAvailable"
+              class="text-green-400 text-xs mt-1"
             >
-            <p v-if="usernameChecking" class="text-gray-400 text-xs mt-1">Checking...</p>
-            <p v-else-if="usernameError" class="text-red-400 text-xs mt-1">{{ usernameError }}</p>
-            <p v-else-if="usernameAvailable" class="text-green-400 text-xs mt-1">
               Username is available
             </p>
           </div>
 
           <div>
-            <label class="block text-gray-300 text-sm font-medium mb-2">Email</label>
+            <label class="block text-gray-300 text-sm font-medium mb-2"
+              >Email</label
+            >
             <input
               v-model="email"
               type="email"
               required
               class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-colors"
               placeholder="your@email.com"
-            >
+            />
           </div>
 
           <div>
-            <label class="block text-gray-300 text-sm font-medium mb-2">Password</label>
+            <label class="block text-gray-300 text-sm font-medium mb-2"
+              >Password</label
+            >
             <input
               v-model="password"
               type="password"
@@ -109,15 +126,21 @@
               minlength="6"
               class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-colors"
               placeholder="At least 6 characters"
-            >
+            />
           </div>
 
           <!-- Error/Success Messages -->
-          <div v-if="error" class="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+          <div
+            v-if="error"
+            class="bg-red-500/10 border border-red-500/50 rounded-lg p-3"
+          >
             <p class="text-red-400 text-sm">{{ error }}</p>
           </div>
 
-          <div v-if="success" class="bg-green-500/10 border border-green-500/50 rounded-lg p-3">
+          <div
+            v-if="success"
+            class="bg-green-500/10 border border-green-500/50 rounded-lg p-3"
+          >
             <p class="text-green-400 text-sm">{{ success }}</p>
           </div>
 
@@ -152,7 +175,10 @@
         <!-- Login Link -->
         <p class="mt-6 text-center text-gray-400">
           Already have an account?
-          <NuxtLink to="/login" class="text-red-500 hover:text-red-400 font-medium">
+          <NuxtLink
+            to="/login"
+            class="text-red-500 hover:text-red-400 font-medium"
+          >
             Sign in
           </NuxtLink>
         </p>
@@ -163,91 +189,96 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest',
-})
+  middleware: "guest",
+});
 
-const supabase = useSupabaseClient()
+const supabase = useSupabaseClient();
 
-const username = ref('')
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const success = ref('')
-const usernameError = ref('')
-const usernameAvailable = ref(false)
-const usernameChecking = ref(false)
+const username = ref("");
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const error = ref("");
+const success = ref("");
+const usernameError = ref("");
+const usernameAvailable = ref(false);
+const usernameChecking = ref(false);
 
-let usernameCheckTimer: ReturnType<typeof setTimeout> | null = null
-watch(username, val => {
-  usernameAvailable.value = false
-  usernameError.value = ''
-  if (usernameCheckTimer) clearTimeout(usernameCheckTimer)
-  const trimmed = val.trim()
-  if (!trimmed) return
+let usernameCheckTimer: ReturnType<typeof setTimeout> | null = null;
+watch(username, (val) => {
+  usernameAvailable.value = false;
+  usernameError.value = "";
+  if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+  const trimmed = val.trim();
+  if (!trimmed) return;
   if (trimmed.length < 2) {
-    usernameError.value = 'Username must be at least 2 characters'
-    return
+    usernameError.value = "Username must be at least 2 characters";
+    return;
   }
   if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-    usernameError.value = 'Only letters, numbers, underscores and hyphens allowed'
-    return
+    usernameError.value =
+      "Only letters, numbers, underscores and hyphens allowed";
+    return;
   }
-  usernameChecking.value = true
+  usernameChecking.value = true;
   usernameCheckTimer = setTimeout(async () => {
-    const { data } = await supabase.from('profiles').select('id').eq('username', trimmed).single()
-    usernameChecking.value = false
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", trimmed)
+      .single();
+    usernameChecking.value = false;
     if (data) {
-      usernameError.value = 'Username is already taken'
+      usernameError.value = "Username is already taken";
     } else {
-      usernameAvailable.value = true
+      usernameAvailable.value = true;
     }
-  }, 400)
-})
+  }, 400);
+});
 
 const signInWithGoogle = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   const { error: authError } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
       redirectTo: `${window.location.origin}/confirm`,
     },
-  })
+  });
 
   if (authError) {
-    error.value = authError.message
-    loading.value = false
+    error.value = authError.message;
+    loading.value = false;
   }
-}
+};
 
 const signInWithDiscord = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   const { error: authError } = await supabase.auth.signInWithOAuth({
-    provider: 'discord',
+    provider: "discord",
     options: {
       redirectTo: `${window.location.origin}/confirm`,
     },
-  })
+  });
 
   if (authError) {
-    error.value = authError.message
-    loading.value = false
+    error.value = authError.message;
+    loading.value = false;
   }
-}
+};
 
 const handleRegister = async () => {
-  loading.value = true
-  error.value = ''
-  success.value = ''
+  loading.value = true;
+  error.value = "";
+  success.value = "";
 
   if (usernameError.value || usernameChecking.value) {
-    error.value = usernameError.value || 'Please wait for username check'
-    loading.value = false
-    return
+    error.value = usernameError.value || "Please wait for username check";
+    loading.value = false;
+    return;
   }
 
   const { data, error: authError } = await supabase.auth.signUp({
@@ -258,24 +289,24 @@ const handleRegister = async () => {
         username: username.value,
       },
     },
-  })
+  });
 
   if (authError) {
-    if (authError.message === 'User already registered') {
-      error.value = 'This email is already registered. Please sign in instead.'
+    if (authError.message === "User already registered") {
+      error.value = "This email is already registered. Please sign in instead.";
     } else {
-      error.value = authError.message
+      error.value = authError.message;
     }
-    loading.value = false
-    return
+    loading.value = false;
+    return;
   }
 
   // 如果有 session，说明不需要邮箱确认，直接跳转首页
   if (data.session) {
-    navigateTo('/')
+    navigateTo("/");
   } else {
     // 需要邮箱确认，跳转到确认页面
-    navigateTo(`/check-email?email=${encodeURIComponent(email.value)}`)
+    navigateTo(`/check-email?email=${encodeURIComponent(email.value)}`);
   }
-}
+};
 </script>

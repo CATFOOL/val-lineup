@@ -10,7 +10,7 @@
         required
         class="w-full bg-gray-900 text-white px-4 py-3 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none"
         placeholder="e.g., Sova Recon Arrow from A Site to B Main"
-      >
+      />
     </div>
 
     <div>
@@ -101,15 +101,18 @@
 </template>
 
 <script setup lang="ts">
-import type { ValorantAgent, ValorantAbility } from '~/composables/useValorantApi'
-import type { LineupFormData } from '~/composables/useLineupForm'
+import type {
+  ValorantAgent,
+  ValorantAbility,
+} from "~/composables/useValorantApi";
+import type { LineupFormData } from "~/composables/useLineupForm";
 
-const form = defineModel<LineupFormData>('form', { required: true })
+const form = defineModel<LineupFormData>("form", { required: true });
 
 defineProps<{
-  agents: ValorantAgent[] | null | undefined
-  maps: { uuid: string; displayName: string }[] | null | undefined
-  selectedAgentAbilities: ValorantAbility[]
-  abilitySlotToKey: (slot: string) => string
-}>()
+  agents: ValorantAgent[] | null | undefined;
+  maps: { uuid: string; displayName: string }[] | null | undefined;
+  selectedAgentAbilities: ValorantAbility[];
+  abilitySlotToKey: (slot: string) => string;
+}>();
 </script>

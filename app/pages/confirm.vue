@@ -1,7 +1,7 @@
 <template>
   <div class="text-center py-16">
     <h1 class="text-2xl font-bold text-white mb-4">
-      {{ error ? 'Authentication Error' : 'Confirming your account...' }}
+      {{ error ? "Authentication Error" : "Confirming your account..." }}
     </h1>
     <p v-if="error" class="text-red-400 mb-4">{{ error }}</p>
     <p v-else class="text-gray-400">Please wait while we verify your email.</p>
@@ -12,54 +12,55 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const route = useRoute()
-const error = ref<string | null>(null)
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const route = useRoute();
+const error = ref<string | null>(null);
 
 onMounted(async () => {
   // Check for errors in query params
-  const errorCode = route.query.error_code as string
-  const errorDescription = route.query.error_description as string
+  const errorCode = route.query.error_code as string;
+  const errorDescription = route.query.error_description as string;
 
   if (errorCode || errorDescription) {
-    if (errorDescription?.includes('already registered')) {
-      error.value = 'This email is already registered. Please login with your original method.'
+    if (errorDescription?.includes("already registered")) {
+      error.value =
+        "This email is already registered. Please login with your original method.";
     } else {
-      error.value = errorDescription || 'Authentication failed'
+      error.value = errorDescription || "Authentication failed";
     }
-    return
+    return;
   }
 
   // Wait a moment for @nuxtjs/supabase to process the callback
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   // If still no user, try to get session manually
   if (!user.value) {
-    const { data, error: sessionError } = await supabase.auth.getSession()
+    const { data, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) {
-      error.value = sessionError.message
-      return
+      error.value = sessionError.message;
+      return;
     }
     if (data.session) {
-      navigateTo('/')
-      return
+      navigateTo("/");
+      return;
     }
   }
 
   // If user is set, redirect
   if (user.value) {
-    navigateTo('/')
+    navigateTo("/");
   }
-})
+});
 
 watch(
   user,
-  newUser => {
+  (newUser) => {
     if (newUser && !error.value) {
-      navigateTo('/')
+      navigateTo("/");
     }
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 </script>

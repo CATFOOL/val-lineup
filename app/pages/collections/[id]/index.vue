@@ -1,7 +1,9 @@
 <template>
   <div v-if="collection">
     <div class="flex items-center justify-between mb-6">
-      <button class="text-gray-400 hover:text-white" @click="$router.back()">← Back</button>
+      <button class="text-gray-400 hover:text-white" @click="$router.back()">
+        ← Back
+      </button>
       <div v-if="isOwner" class="flex items-center gap-2">
         <button
           type="button"
@@ -30,7 +32,9 @@
     <!-- Collection Header -->
     <div class="bg-gray-800/50 rounded-xl p-6 mb-8">
       <h1 class="text-2xl font-bold text-white mb-2">{{ collection.title }}</h1>
-      <p v-if="collection.description" class="text-gray-300 mb-4">{{ collection.description }}</p>
+      <p v-if="collection.description" class="text-gray-300 mb-4">
+        {{ collection.description }}
+      </p>
       <div class="flex items-center gap-4 text-sm text-gray-400">
         <NuxtLink
           v-if="collection.profile?.username"
@@ -44,7 +48,10 @@
           </svg>
           {{ collection.profile.username }}
         </NuxtLink>
-        <span>{{ lineupsCount }} {{ lineupsCount === 1 ? 'lineup' : 'lineups' }}</span>
+        <span
+          >{{ lineupsCount }}
+          {{ lineupsCount === 1 ? "lineup" : "lineups" }}</span
+        >
         <span>{{ formatDate(collection.created_at) }}</span>
       </div>
       <!-- Subscribe button -->
@@ -54,7 +61,9 @@
           :disabled="subscribeLoading"
           class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
           :class="
-            isSubscribed ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            isSubscribed
+              ? 'bg-red-500 text-white'
+              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           "
           @click="toggleSubscribe"
         >
@@ -68,16 +77,19 @@
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
-          <span>{{ isSubscribed ? 'Subscribed' : 'Subscribe' }}</span>
+          <span>{{ isSubscribed ? "Subscribed" : "Subscribe" }}</span>
         </button>
         <span class="text-gray-400 text-sm"
-          >{{ subscribersCount }} {{ subscribersCount === 1 ? 'subscriber' : 'subscribers' }}</span
+          >{{ subscribersCount }}
+          {{ subscribersCount === 1 ? "subscriber" : "subscribers" }}</span
         >
       </div>
     </div>
 
     <!-- Lineups Grid -->
-    <div v-if="loading && !lineups.length" class="text-gray-400">Loading lineups...</div>
+    <div v-if="loading && !lineups.length" class="text-gray-400">
+      Loading lineups...
+    </div>
 
     <!-- Owner: draggable grid -->
     <draggable
@@ -128,8 +140,14 @@
     <div v-else class="text-gray-400">No lineups in this collection yet.</div>
 
     <!-- Infinite scroll sentinel (non-owner only) -->
-    <div v-if="!isOwner" ref="sentinel" class="h-10 flex items-center justify-center mt-4">
-      <span v-if="loading && lineups.length" class="text-gray-500 text-sm">Loading more...</span>
+    <div
+      v-if="!isOwner"
+      ref="sentinel"
+      class="h-10 flex items-center justify-center mt-4"
+    >
+      <span v-if="loading && lineups.length" class="text-gray-500 text-sm"
+        >Loading more...</span
+      >
     </div>
   </div>
   <div v-else-if="pending" class="text-gray-400">Loading collection...</div>
@@ -145,12 +163,21 @@
 
   <!-- Delete Confirmation Modal -->
   <Teleport to="body">
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/60" @click="showDeleteModal = false" />
-      <div class="relative bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div
+        class="absolute inset-0 bg-black/60"
+        @click="showDeleteModal = false"
+      />
+      <div
+        class="relative bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl"
+      >
         <h3 class="text-lg font-semibold text-white mb-2">Delete Collection</h3>
         <p class="text-gray-400 mb-6">
-          Are you sure you want to delete this collection? The lineups inside will not be deleted.
+          Are you sure you want to delete this collection? The lineups inside
+          will not be deleted.
         </p>
         <div
           v-if="deleteError"
@@ -173,7 +200,12 @@
             :disabled="deleteLoading"
             @click="executeDelete"
           >
-            <svg v-if="deleteLoading" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <svg
+              v-if="deleteLoading"
+              class="w-4 h-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <circle
                 class="opacity-25"
                 cx="12"
@@ -197,143 +229,156 @@
 </template>
 
 <script setup lang="ts">
-import { VueDraggableNext as draggable } from 'vue-draggable-next'
-import type { LineupWithRelations, RawLineupWithCounts } from '~/types/database.types'
+import { VueDraggableNext as draggable } from "vue-draggable-next";
+import type {
+  LineupWithRelations,
+  RawLineupWithCounts,
+} from "~/types/database.types";
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 20;
 
-const route = useRoute()
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const { getAgents, getMaps } = useValorantApi()
+const route = useRoute();
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const { getAgents, getMaps } = useValorantApi();
 
-const collectionId = route.params.id as string
-const currentUserId = computed(() => user.value?.id)
+const collectionId = route.params.id as string;
+const currentUserId = computed(() => user.value?.id);
 
-const showDeleteModal = ref(false)
-const deleteLoading = ref(false)
-const deleteError = ref<string | null>(null)
-const showAddLineups = ref(false)
-const subscribeLoading = ref(false)
+const showDeleteModal = ref(false);
+const deleteLoading = ref(false);
+const deleteError = ref<string | null>(null);
+const showAddLineups = ref(false);
+const subscribeLoading = ref(false);
 
 function onLineupsUpdated() {
-  fetchLineups(true)
-  fetchCount()
+  fetchLineups(true);
+  fetchCount();
 }
 
 // Fetch collection
-const { data: collection, pending } = await useAsyncData(`collection-${collectionId}`, async () => {
-  const { data } = await supabase
-    .from('collections')
-    .select('*, profile:profiles(*)')
-    .eq('id', collectionId)
-    .single()
-  return data
-})
+const { data: collection, pending } = await useAsyncData(
+  `collection-${collectionId}`,
+  async () => {
+    const { data } = await supabase
+      .from("collections")
+      .select("*, profile:profiles(*)")
+      .eq("id", collectionId)
+      .single();
+    return data;
+  },
+);
 
 const isOwner = computed(
   () =>
-    !!collection.value && !!currentUserId.value && collection.value.user_id === currentUserId.value
-)
+    !!collection.value &&
+    !!currentUserId.value &&
+    collection.value.user_id === currentUserId.value,
+);
 
 // Fetch subscription data
-const { data: subscriptionData, refresh: refreshSubscription } = await useAsyncData(
-  `collection-subscription-${collectionId}`,
-  async () => {
-    if (!collection.value) return { count: 0, isSubscribed: false }
+const { data: subscriptionData, refresh: refreshSubscription } =
+  await useAsyncData(
+    `collection-subscription-${collectionId}`,
+    async () => {
+      if (!collection.value) return { count: 0, isSubscribed: false };
 
-    const { count } = await supabase
-      .from('collection_subscriptions')
-      .select('*', { count: 'exact', head: true })
-      .eq('collection_id', collection.value.id)
+      const { count } = await supabase
+        .from("collection_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("collection_id", collection.value.id);
 
-    let isSubscribed = false
-    if (currentUserId.value) {
-      const { data } = await supabase
-        .from('collection_subscriptions')
-        .select('id')
-        .eq('collection_id', collection.value.id)
-        .eq('user_id', currentUserId.value)
-        .maybeSingle()
-      isSubscribed = !!data
-    }
+      let isSubscribed = false;
+      if (currentUserId.value) {
+        const { data } = await supabase
+          .from("collection_subscriptions")
+          .select("id")
+          .eq("collection_id", collection.value.id)
+          .eq("user_id", currentUserId.value)
+          .maybeSingle();
+        isSubscribed = !!data;
+      }
 
-    return { count: count || 0, isSubscribed }
-  },
-  { watch: [currentUserId] }
-)
+      return { count: count || 0, isSubscribed };
+    },
+    { watch: [currentUserId] },
+  );
 
-const subscribersCount = computed(() => subscriptionData.value?.count ?? 0)
-const isSubscribed = computed(() => subscriptionData.value?.isSubscribed ?? false)
+const subscribersCount = computed(() => subscriptionData.value?.count ?? 0);
+const isSubscribed = computed(
+  () => subscriptionData.value?.isSubscribed ?? false,
+);
 
 const toggleSubscribe = async () => {
-  if (!currentUserId.value || !collection.value) return
-  subscribeLoading.value = true
+  if (!currentUserId.value || !collection.value) return;
+  subscribeLoading.value = true;
 
   if (isSubscribed.value) {
     await supabase
-      .from('collection_subscriptions')
+      .from("collection_subscriptions")
       .delete()
-      .eq('collection_id', collection.value.id)
-      .eq('user_id', currentUserId.value)
+      .eq("collection_id", collection.value.id)
+      .eq("user_id", currentUserId.value);
   } else {
-    await supabase.from('collection_subscriptions').insert({
+    await supabase.from("collection_subscriptions").insert({
       collection_id: collection.value.id,
       user_id: currentUserId.value,
-    })
+    });
   }
 
-  await refreshSubscription()
-  subscribeLoading.value = false
-}
+  await refreshSubscription();
+  subscribeLoading.value = false;
+};
 
 // Fetch agents and maps
-const { data: agents } = await useAsyncData('valorant-agents', () => getAgents())
-const { data: maps } = await useAsyncData('valorant-maps', () => getMaps())
+const { data: agents } = await useAsyncData("valorant-agents", () =>
+  getAgents(),
+);
+const { data: maps } = await useAsyncData("valorant-maps", () => getMaps());
 
 const agentsMap = computed(() => {
-  if (!agents.value) return {}
+  if (!agents.value) return {};
   return agents.value.reduce(
     (acc, agent) => {
-      acc[agent.uuid] = agent
-      return acc
+      acc[agent.uuid] = agent;
+      return acc;
     },
-    {} as Record<string, (typeof agents.value)[0]>
-  )
-})
+    {} as Record<string, (typeof agents.value)[0]>,
+  );
+});
 
 const mapsMap = computed(() => {
-  if (!maps.value) return {}
+  if (!maps.value) return {};
   return maps.value.reduce(
     (acc, map) => {
-      acc[map.uuid] = map
-      return acc
+      acc[map.uuid] = map;
+      return acc;
     },
-    {} as Record<string, (typeof maps.value)[0]>
-  )
-})
+    {} as Record<string, (typeof maps.value)[0]>,
+  );
+});
 
 // Fetch lineups in collection with pagination
-const lineups = ref<LineupWithRelations[]>([])
-const loading = ref(false)
-const hasMore = ref(true)
-const lineupsCount = ref(0)
-const sentinel = ref<HTMLElement | null>(null)
+const lineups = ref<LineupWithRelations[]>([]);
+const loading = ref(false);
+const hasMore = ref(true);
+const lineupsCount = ref(0);
+const sentinel = ref<HTMLElement | null>(null);
 
 async function fetchLineups(reset = false) {
-  if (!collection.value) return
-  if (loading.value) return
-  if (!reset && !hasMore.value) return
+  if (!collection.value) return;
+  if (loading.value) return;
+  if (!reset && !hasMore.value) return;
 
-  loading.value = true
+  loading.value = true;
 
   if (reset) {
-    lineups.value = []
-    hasMore.value = true
+    lineups.value = [];
+    hasMore.value = true;
   }
 
   let query = supabase
-    .from('collection_lineups')
+    .from("collection_lineups")
     .select(
       `
       lineup_id,
@@ -345,24 +390,24 @@ async function fetchLineups(reset = false) {
         likes_count:lineup_likes(count),
         bookmarks_count:lineup_bookmarks(count)
       )
-    `
+    `,
     )
-    .eq('collection_id', collection.value.id)
-    .order('sort_order', { ascending: true })
-    .order('added_at', { ascending: false })
+    .eq("collection_id", collection.value.id)
+    .order("sort_order", { ascending: true })
+    .order("added_at", { ascending: false });
 
   // Owner loads all lineups at once for reordering; non-owner uses pagination
   if (!isOwner.value) {
-    const from = lineups.value.length
-    const to = from + PAGE_SIZE - 1
-    query = query.range(from, to)
+    const from = lineups.value.length;
+    const to = from + PAGE_SIZE - 1;
+    query = query.range(from, to);
   }
 
-  const { data, error } = await query
+  const { data, error } = await query;
 
   if (error) {
-    loading.value = false
-    return
+    loading.value = false;
+    return;
   }
 
   const items = (data ?? [])
@@ -372,96 +417,99 @@ async function fetchLineups(reset = false) {
       ...item,
       likes_count: item.likes_count?.[0]?.count ?? 0,
       bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0,
-    })) as LineupWithRelations[]
+    })) as LineupWithRelations[];
 
   if (isOwner.value) {
-    lineups.value = items
-    hasMore.value = false
+    lineups.value = items;
+    hasMore.value = false;
   } else {
-    lineups.value.push(...items)
-    hasMore.value = items.length === PAGE_SIZE
+    lineups.value.push(...items);
+    hasMore.value = items.length === PAGE_SIZE;
   }
-  loading.value = false
+  loading.value = false;
 }
 
 // Save sort order after drag-and-drop reorder
 async function saveOrder() {
-  if (!collection.value) return
+  if (!collection.value) return;
   for (let i = 0; i < lineups.value.length; i++) {
-    const lineup = lineups.value[i]
-    if (!lineup) continue
+    const lineup = lineups.value[i];
+    if (!lineup) continue;
     await supabase
-      .from('collection_lineups')
+      .from("collection_lineups")
       .update({ sort_order: i })
-      .eq('collection_id', collection.value.id)
-      .eq('lineup_id', lineup.id)
+      .eq("collection_id", collection.value.id)
+      .eq("lineup_id", lineup.id);
   }
 }
 
 // Fetch total count
 async function fetchCount() {
-  if (!collection.value) return
+  if (!collection.value) return;
   const { count } = await supabase
-    .from('collection_lineups')
-    .select('*', { count: 'exact', head: true })
-    .eq('collection_id', collection.value.id)
-  lineupsCount.value = count || 0
+    .from("collection_lineups")
+    .select("*", { count: "exact", head: true })
+    .eq("collection_id", collection.value.id);
+  lineupsCount.value = count || 0;
 }
 
 // Delete
 function confirmDelete() {
-  if (!collection.value || !isOwner.value) return
-  deleteError.value = null
-  showDeleteModal.value = true
+  if (!collection.value || !isOwner.value) return;
+  deleteError.value = null;
+  showDeleteModal.value = true;
 }
 
 async function executeDelete() {
-  if (!collection.value || !isOwner.value) return
-  deleteLoading.value = true
-  deleteError.value = null
+  if (!collection.value || !isOwner.value) return;
+  deleteLoading.value = true;
+  deleteError.value = null;
 
-  const { error } = await supabase.from('collections').delete().eq('id', collection.value.id)
+  const { error } = await supabase
+    .from("collections")
+    .delete()
+    .eq("id", collection.value.id);
 
   if (error) {
-    deleteError.value = error.message
-    deleteLoading.value = false
-    return
+    deleteError.value = error.message;
+    deleteLoading.value = false;
+    return;
   }
 
-  await navigateTo('/profile')
+  await navigateTo("/profile");
 }
 
 // Initial fetch
 onMounted(() => {
-  fetchLineups()
-  fetchCount()
-})
+  fetchLineups();
+  fetchCount();
+});
 
 // Infinite scroll (non-owner only)
-let observer: IntersectionObserver | null = null
+let observer: IntersectionObserver | null = null;
 
 onMounted(() => {
-  if (isOwner.value) return
+  if (isOwner.value) return;
   observer = new IntersectionObserver(
-    entries => {
+    (entries) => {
       if (entries[0]?.isIntersecting && hasMore.value && !loading.value) {
-        fetchLineups()
+        fetchLineups();
       }
     },
-    { rootMargin: '200px' }
-  )
-  if (sentinel.value) observer.observe(sentinel.value)
-})
+    { rootMargin: "200px" },
+  );
+  if (sentinel.value) observer.observe(sentinel.value);
+});
 
 onUnmounted(() => {
-  observer?.disconnect()
-})
+  observer?.disconnect();
+});
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 </script>

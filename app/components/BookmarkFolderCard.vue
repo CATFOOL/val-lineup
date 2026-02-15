@@ -5,13 +5,16 @@
   >
     <div class="aspect-video bg-gray-700 relative">
       <!-- 2x2 grid of lineup thumbnails -->
-      <div v-if="coverImages.length" class="w-full h-full grid grid-cols-2 grid-rows-2">
+      <div
+        v-if="coverImages.length"
+        class="w-full h-full grid grid-cols-2 grid-rows-2"
+      >
         <img
           v-for="(src, i) in coverImages"
           :key="i"
           :src="src"
           class="w-full h-full object-cover"
-        >
+        />
         <!-- Fill empty slots if less than 4 -->
         <div
           v-for="n in Math.max(0, 4 - coverImages.length)"
@@ -19,7 +22,10 @@
           class="bg-gray-700"
         />
       </div>
-      <div v-else class="w-full h-full flex items-center justify-center text-gray-500">
+      <div
+        v-else
+        class="w-full h-full flex items-center justify-center text-gray-500"
+      >
         <svg
           class="w-12 h-12"
           viewBox="0 0 24 24"
@@ -38,31 +44,36 @@
         Default
       </div>
       <!-- Lineup count badge -->
-      <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-        {{ folder.lineups_count }} {{ folder.lineups_count === 1 ? 'lineup' : 'lineups' }}
+      <div
+        class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded"
+      >
+        {{ folder.lineups_count }}
+        {{ folder.lineups_count === 1 ? "lineup" : "lineups" }}
       </div>
     </div>
     <div class="p-4">
-      <h3 class="text-white font-semibold mb-2 line-clamp-1">{{ folder.title }}</h3>
+      <h3 class="text-white font-semibold mb-2 line-clamp-1">
+        {{ folder.title }}
+      </h3>
     </div>
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
-import type { BookmarkFolderWithCount } from '~/types/database.types'
+import type { BookmarkFolderWithCount } from "~/types/database.types";
 
 const props = defineProps<{
   folder: BookmarkFolderWithCount & {
-    cover_bookmarks?: { lineup: { media: { url: string }[] } }[]
-  }
-}>()
+    cover_bookmarks?: { lineup: { media: { url: string }[] } }[];
+  };
+}>();
 
 const coverImages = computed(() => {
-  const bookmarks = props.folder.cover_bookmarks
-  if (!bookmarks?.length) return []
+  const bookmarks = props.folder.cover_bookmarks;
+  if (!bookmarks?.length) return [];
   return bookmarks
-    .map(b => getLineupThumbnail(b.lineup?.media || []))
+    .map((b) => getLineupThumbnail(b.lineup?.media || []))
     .filter(Boolean)
-    .slice(0, 4) as string[]
-})
+    .slice(0, 4) as string[];
+});
 </script>

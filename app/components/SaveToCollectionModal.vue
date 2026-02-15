@@ -1,8 +1,13 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      v-if="show"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
       <div class="absolute inset-0 bg-black/60" @click="emit('close')" />
-      <div class="relative bg-gray-800 rounded-lg w-full max-w-md mx-4 shadow-xl">
+      <div
+        class="relative bg-gray-800 rounded-lg w-full max-w-md mx-4 shadow-xl"
+      >
         <!-- Header -->
         <div class="p-6 border-b border-gray-700">
           <h3 class="text-lg font-semibold text-white">Save to Collection</h3>
@@ -18,14 +23,14 @@
               placeholder="Collection name..."
               class="w-full bg-gray-900 text-white px-4 py-3 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none text-sm"
               @keyup.enter="createAndAdd"
-            >
+            />
             <div class="flex gap-2">
               <button
                 :disabled="!newTitle.trim() || creating"
                 class="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-4 py-2 rounded-md text-sm transition-colors"
                 @click="createAndAdd"
               >
-                {{ creating ? 'Creating...' : 'Create' }}
+                {{ creating ? "Creating..." : "Create" }}
               </button>
               <button
                 class="bg-gray-700 text-gray-300 px-4 py-2 rounded-md text-sm hover:bg-gray-600 transition-colors"
@@ -59,7 +64,11 @@
             >
               <div
                 class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0"
-                :class="col.hasLineup ? 'bg-red-500 border-red-500' : 'border-gray-500'"
+                :class="
+                  col.hasLineup
+                    ? 'bg-red-500 border-red-500'
+                    : 'border-gray-500'
+                "
               >
                 <svg
                   v-if="col.hasLineup"
@@ -75,7 +84,8 @@
               <div class="flex-1 min-w-0">
                 <p class="text-white text-sm truncate">{{ col.title }}</p>
                 <p class="text-gray-500 text-xs">
-                  {{ col.lineups_count }} {{ col.lineups_count === 1 ? 'lineup' : 'lineups' }}
+                  {{ col.lineups_count }}
+                  {{ col.lineups_count === 1 ? "lineup" : "lineups" }}
                 </p>
               </div>
             </div>
@@ -105,101 +115,109 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  lineupId: string
-  show: boolean
-}>()
+  lineupId: string;
+  show: boolean;
+}>();
 
 const emit = defineEmits<{
-  close: []
-}>()
+  close: [];
+}>();
 
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const currentUserId = computed(() => user.value?.id)
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const currentUserId = computed(() => user.value?.id);
 
-const loading = ref(false)
-const creating = ref(false)
-const showCreateForm = ref(false)
-const newTitle = ref('')
+const loading = ref(false);
+const creating = ref(false);
+const showCreateForm = ref(false);
+const newTitle = ref("");
 
 interface CollectionItem {
-  id: string
-  title: string
-  lineups_count: number
-  hasLineup: boolean
-  toggling: boolean
+  id: string;
+  title: string;
+  lineups_count: number;
+  hasLineup: boolean;
+  toggling: boolean;
 }
 
-const userCollections = ref<CollectionItem[]>([])
+const userCollections = ref<CollectionItem[]>([]);
 
 async function fetchCollections() {
-  if (!currentUserId.value) return
-  loading.value = true
+  if (!currentUserId.value) return;
+  loading.value = true;
 
   const { data: cols } = await supabase
-    .from('collections')
-    .select('id, title, lineups_count:collection_lineups(count)')
-    .eq('user_id', currentUserId.value)
-    .order('created_at', { ascending: false })
+    .from("collections")
+    .select("id, title, lineups_count:collection_lineups(count)")
+    .eq("user_id", currentUserId.value)
+    .order("created_at", { ascending: false });
 
   const { data: existing } = await supabase
-    .from('collection_lineups')
-    .select('collection_id')
-    .eq('lineup_id', props.lineupId)
+    .from("collection_lineups")
+    .select("collection_id")
+    .eq("lineup_id", props.lineupId);
 
-  const existingIds = new Set((existing ?? []).map((e: { collection_id: string }) => e.collection_id))
+  const existingIds = new Set(
+    (existing ?? []).map((e: { collection_id: string }) => e.collection_id),
+  );
 
-  userCollections.value = (cols ?? []).map((col: { id: string; title: string; lineups_count: { count: number }[] }) => ({
-    id: col.id,
-    title: col.title,
-    lineups_count: col.lineups_count?.[0]?.count ?? 0,
-    hasLineup: existingIds.has(col.id),
-    toggling: false,
-  }))
+  userCollections.value = (cols ?? []).map(
+    (col: {
+      id: string;
+      title: string;
+      lineups_count: { count: number }[];
+    }) => ({
+      id: col.id,
+      title: col.title,
+      lineups_count: col.lineups_count?.[0]?.count ?? 0,
+      hasLineup: existingIds.has(col.id),
+      toggling: false,
+    }),
+  );
 
-  loading.value = false
+  loading.value = false;
 }
 
 async function toggleLineup(col: CollectionItem) {
-  col.toggling = true
+  col.toggling = true;
 
   if (col.hasLineup) {
     await supabase
-      .from('collection_lineups')
+      .from("collection_lineups")
       .delete()
-      .eq('collection_id', col.id)
-      .eq('lineup_id', props.lineupId)
-    col.hasLineup = false
-    col.lineups_count--
+      .eq("collection_id", col.id)
+      .eq("lineup_id", props.lineupId);
+    col.hasLineup = false;
+    col.lineups_count--;
   } else {
     await supabase
-      .from('collection_lineups')
-      .insert({ collection_id: col.id, lineup_id: props.lineupId })
-    col.hasLineup = true
-    col.lineups_count++
+      .from("collection_lineups")
+      .insert({ collection_id: col.id, lineup_id: props.lineupId });
+    col.hasLineup = true;
+    col.lineups_count++;
   }
 
-  col.toggling = false
+  col.toggling = false;
 }
 
 async function createAndAdd() {
-  if (!newTitle.value.trim() || !currentUserId.value) return
-  creating.value = true
+  if (!newTitle.value.trim() || !currentUserId.value) return;
+  creating.value = true;
 
   const { data: newCol } = await supabase
-    .from('collections')
+    .from("collections")
     .insert({
       user_id: currentUserId.value,
       title: newTitle.value.trim(),
       is_published: true,
     })
-    .select('id, title')
-    .single()
+    .select("id, title")
+    .single();
 
   if (newCol) {
     await supabase
-      .from('collection_lineups')
-      .insert({ collection_id: newCol.id, lineup_id: props.lineupId })
+      .from("collection_lineups")
+      .insert({ collection_id: newCol.id, lineup_id: props.lineupId });
 
     userCollections.value.unshift({
       id: newCol.id,
@@ -207,23 +225,23 @@ async function createAndAdd() {
       lineups_count: 1,
       hasLineup: true,
       toggling: false,
-    })
+    });
   }
 
-  newTitle.value = ''
-  showCreateForm.value = false
-  creating.value = false
+  newTitle.value = "";
+  showCreateForm.value = false;
+  creating.value = false;
 }
 
 watch(
   () => props.show,
-  val => {
+  (val) => {
     if (val) {
-      fetchCollections()
+      fetchCollections();
     } else {
-      showCreateForm.value = false
-      newTitle.value = ''
+      showCreateForm.value = false;
+      newTitle.value = "";
     }
-  }
-)
+  },
+);
 </script>

@@ -1,7 +1,10 @@
 <template>
   <div v-if="lineup" class="max-w-4xl mx-auto">
     <div class="flex items-center gap-4 mb-8">
-      <NuxtLink :to="`/lineups/${lineup.id}`" replace class="text-gray-400 hover:text-white"
+      <NuxtLink
+        :to="`/lineups/${lineup.id}`"
+        replace
+        class="text-gray-400 hover:text-white"
         >← Back</NuxtLink
       >
       <h1 class="text-3xl font-bold text-white">Edit Lineup</h1>
@@ -19,8 +22,12 @@
 
       <!-- Media: existing + new, drag to reorder -->
       <div class="bg-gray-800 rounded-lg p-6">
-        <h2 class="text-xl font-semibold text-white mb-4">Media (Images/Videos)</h2>
-        <p class="text-gray-400 text-sm mb-4">Drag to reorder. Click the star to set as cover.</p>
+        <h2 class="text-xl font-semibold text-white mb-4">
+          Media (Images/Videos)
+        </h2>
+        <p class="text-gray-400 text-sm mb-4">
+          Drag to reorder. Click the star to set as cover.
+        </p>
 
         <div class="space-y-4">
           <!-- Ordered media list -->
@@ -46,7 +53,11 @@
                     class="drag-handle cursor-grab active:cursor-grabbing flex items-center text-gray-500 hover:text-gray-300 p-1"
                     title="Drag to reorder"
                   >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      class="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         d="M8 6h2v2H8V6zm0 5h2v2H8v-2zm0 5h2v2H8v-2zm5-10h2v2h-2V6zm0 5h2v2h-2v-2zm0 5h2v2h-2v-2z"
                       />
@@ -62,16 +73,24 @@
                         v-if="item.media_type === 'image'"
                         :src="item.url"
                         class="w-full h-full object-cover"
-                      >
-                      <video v-else :src="item.url" class="w-full h-full object-cover" />
+                      />
+                      <video
+                        v-else
+                        :src="item.url"
+                        class="w-full h-full object-cover"
+                      />
                     </template>
                     <template v-else>
                       <img
                         v-if="item.type === 'image'"
                         :src="item.preview"
                         class="w-full h-full object-cover"
-                      >
-                      <video v-else :src="item.preview" class="w-full h-full object-cover" />
+                      />
+                      <video
+                        v-else
+                        :src="item.preview"
+                        class="w-full h-full object-cover"
+                      />
                     </template>
                     <span
                       v-if="item.is_cover"
@@ -86,8 +105,11 @@
                       type="text"
                       class="w-full bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none text-sm"
                       placeholder="Description..."
+                    />
+                    <p
+                      v-if="item.kind === 'new'"
+                      class="text-gray-500 text-xs mt-1"
                     >
-                    <p v-if="item.kind === 'new'" class="text-gray-500 text-xs mt-1">
                       {{ item.file.name }}
                     </p>
                   </div>
@@ -96,7 +118,9 @@
                     type="button"
                     class="flex-shrink-0 transition-colors"
                     :class="
-                      item.is_cover ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'
+                      item.is_cover
+                        ? 'text-yellow-400'
+                        : 'text-gray-600 hover:text-yellow-400'
                     "
                     title="Set as cover"
                     @click="setCover(item.dragId)"
@@ -126,7 +150,11 @@
           </div>
 
           <!-- Add more files -->
-          <FileDropZone label="Add more files (drop or click)" sublabel="" @files="addFiles" />
+          <FileDropZone
+            label="Add more files (drop or click)"
+            sublabel=""
+            @files="addFiles"
+          />
         </div>
       </div>
 
@@ -136,15 +164,19 @@
           :disabled="submitting"
           class="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-600 text-white py-3 rounded-md font-semibold transition-colors"
         >
-          {{ submitting ? 'Saving...' : 'Save Changes' }}
+          {{ submitting ? "Saving..." : "Save Changes" }}
         </button>
         <button
           type="button"
           class="px-6 py-3 rounded-md font-semibold transition-colors"
-          :class="form.is_published ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'"
+          :class="
+            form.is_published
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-700 text-gray-300'
+          "
           @click="form.is_published = !form.is_published"
         >
-          {{ form.is_published ? 'Public' : 'Draft' }}
+          {{ form.is_published ? "Public" : "Draft" }}
         </button>
       </div>
 
@@ -176,7 +208,7 @@
             v-if="previewItem.media_type === 'image'"
             :src="previewItem.url"
             class="max-w-[95vw] max-h-[95vh] object-contain"
-          >
+          />
           <video
             v-else
             :src="previewItem.url"
@@ -190,7 +222,7 @@
             v-if="previewItem.type === 'image'"
             :src="previewItem.preview"
             class="max-w-[95vw] max-h-[95vh] object-contain"
-          >
+          />
           <video
             v-else
             :src="previewItem.preview"
@@ -209,17 +241,17 @@
 </template>
 
 <script setup lang="ts">
-import { VueDraggableNext as draggable } from 'vue-draggable-next'
-import { useDebounceFn } from '@vueuse/core'
-import type { LineupWithRelations, LineupMedia } from '~/types/database.types'
+import { VueDraggableNext as draggable } from "vue-draggable-next";
+import { useDebounceFn } from "@vueuse/core";
+import type { LineupWithRelations, LineupMedia } from "~/types/database.types";
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: "auth" });
 
-const route = useRoute()
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const { updateLineup, fileToBase64 } = useLineupApi()
-const { markAsUpdated } = useLineupEvents()
+const route = useRoute();
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const { updateLineup, fileToBase64 } = useLineupApi();
+const { markAsUpdated } = useLineupEvents();
 
 const {
   form,
@@ -229,126 +261,131 @@ const {
   abilitySlotToKey,
   processFiles,
   revokePreviewUrl,
-} = useLineupForm()
+} = useLineupForm();
 
-const lineupId = route.params.id as string
-const currentUserId = computed(() => user.value?.id)
+const lineupId = route.params.id as string;
+const currentUserId = computed(() => user.value?.id);
 
 type ExistingMediaItem = {
-  kind: 'existing'
-  id: string
-  dragId: string
-  url: string
-  media_type: 'image' | 'video'
-  description: string | null
-  is_cover: boolean
-}
+  kind: "existing";
+  id: string;
+  dragId: string;
+  url: string;
+  media_type: "image" | "video";
+  description: string | null;
+  is_cover: boolean;
+};
 type NewMediaItem = {
-  kind: 'new'
-  dragId: string
-  file: File
-  type: 'image' | 'video'
-  preview: string
-  description: string
-  is_cover: boolean
-}
-type EditMediaItem = ExistingMediaItem | NewMediaItem
+  kind: "new";
+  dragId: string;
+  file: File;
+  type: "image" | "video";
+  preview: string;
+  description: string;
+  is_cover: boolean;
+};
+type EditMediaItem = ExistingMediaItem | NewMediaItem;
 
-const lineup = ref<LineupWithRelations | null>(null)
-const forbidden = ref(false)
-const mediaList = ref<EditMediaItem[]>([])
-const submitting = ref(false)
-const error = ref('')
-const previewItem = ref<EditMediaItem | null>(null)
+const lineup = ref<LineupWithRelations | null>(null);
+const forbidden = ref(false);
+const mediaList = ref<EditMediaItem[]>([]);
+const submitting = ref(false);
+const error = ref("");
+const previewItem = ref<EditMediaItem | null>(null);
 
 function openPreview(item: EditMediaItem) {
-  previewItem.value = item
+  previewItem.value = item;
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') previewItem.value = null
+  if (e.key === "Escape") previewItem.value = null;
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
 
 // Load lineup and ensure owner
-const { data: lineupData } = await useAsyncData(`lineup-edit-${lineupId}`, async () => {
-  const { data } = await supabase
-    .from('lineups')
-    .select(`*, profile:profiles(*), media:lineup_media(*)`)
-    .eq('id', lineupId)
-    .single()
-  return data as LineupWithRelations | null
-})
+const { data: lineupData } = await useAsyncData(
+  `lineup-edit-${lineupId}`,
+  async () => {
+    const { data } = await supabase
+      .from("lineups")
+      .select(`*, profile:profiles(*), media:lineup_media(*)`)
+      .eq("id", lineupId)
+      .single();
+    return data as LineupWithRelations | null;
+  },
+);
 
 watch(
   lineupData,
-  v => {
+  (v) => {
     if (!v) {
-      lineup.value = null
-      return
+      lineup.value = null;
+      return;
     }
     if (currentUserId.value && v.user_id !== currentUserId.value) {
-      forbidden.value = true
-      lineup.value = null
-      return
+      forbidden.value = true;
+      lineup.value = null;
+      return;
     }
-    lineup.value = v
-    form.title = v.title
-    form.description = v.description ?? ''
-    form.agent_uuid = v.agent_uuid
-    form.map_uuid = v.map_uuid
-    form.side = (v.side ?? '') as '' | 'attack' | 'defense'
-    form.site = v.site ?? ''
-    form.ability = v.ability ?? ''
-    form.is_published = v.is_published
-    const sorted = [...(v.media ?? [])].sort((a, b) => a.sort_order - b.sort_order)
+    lineup.value = v;
+    form.title = v.title;
+    form.description = v.description ?? "";
+    form.agent_uuid = v.agent_uuid;
+    form.map_uuid = v.map_uuid;
+    form.side = (v.side ?? "") as "" | "attack" | "defense";
+    form.site = v.site ?? "";
+    form.ability = v.ability ?? "";
+    form.is_published = v.is_published;
+    const sorted = [...(v.media ?? [])].sort(
+      (a, b) => a.sort_order - b.sort_order,
+    );
     mediaList.value = sorted.map((m: LineupMedia) => ({
-      kind: 'existing' as const,
+      kind: "existing" as const,
       id: m.id,
       dragId: m.id,
       url: m.url,
       media_type: m.media_type,
       description: m.description,
       is_cover: m.is_cover,
-    }))
+    }));
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 
 async function addFiles(files: File[]) {
-  const hasCover = mediaList.value.some(m => m.is_cover)
-  const items = await processFiles(files, hasCover)
+  const hasCover = mediaList.value.some((m) => m.is_cover);
+  const items = await processFiles(files, hasCover);
   for (const item of items) {
     mediaList.value.push({
-      kind: 'new',
+      kind: "new",
       dragId: item.id,
       file: item.file,
       type: item.type,
       preview: item.preview,
       description: item.description,
       is_cover: item.is_cover,
-    })
+    });
   }
 }
 
 function setCover(dragId: string) {
   for (const item of mediaList.value) {
-    item.is_cover = item.dragId === dragId
+    item.is_cover = item.dragId === dragId;
   }
 }
 
 function removeMediaByItem(item: EditMediaItem) {
-  const index = mediaList.value.indexOf(item)
-  if (index === -1) return
-  const wasCover = item.is_cover
-  if (item.kind === 'new') {
-    revokePreviewUrl(item.preview)
+  const index = mediaList.value.indexOf(item);
+  if (index === -1) return;
+  const wasCover = item.is_cover;
+  if (item.kind === "new") {
+    revokePreviewUrl(item.preview);
   }
-  mediaList.value.splice(index, 1)
+  mediaList.value.splice(index, 1);
   if (wasCover && mediaList.value.length > 0 && mediaList.value[0]) {
-    mediaList.value[0].is_cover = true
+    mediaList.value[0].is_cover = true;
   }
 }
 
@@ -359,21 +396,21 @@ const handleSubmit = useDebounceFn(async () => {
     lineup.value.user_id !== currentUserId.value ||
     submitting.value
   )
-    return
-  submitting.value = true
-  error.value = ''
+    return;
+  submitting.value = true;
+  error.value = "";
   try {
     // Build media payload
     const mediaPayload = await Promise.all(
       mediaList.value.map(async (item, index) => {
-        if (item.kind === 'existing') {
+        if (item.kind === "existing") {
           return {
             id: item.id,
             type: item.media_type,
             description: item.description || undefined,
             is_cover: item.is_cover,
             sort_order: index,
-          }
+          };
         } else {
           return {
             file: await fileToBase64(item.file),
@@ -382,10 +419,10 @@ const handleSubmit = useDebounceFn(async () => {
             description: item.description || undefined,
             is_cover: item.is_cover,
             sort_order: index,
-          }
+          };
         }
-      })
-    )
+      }),
+    );
 
     await updateLineup({
       lineup_id: lineup.value.id,
@@ -398,20 +435,20 @@ const handleSubmit = useDebounceFn(async () => {
       ability: form.ability || undefined,
       is_published: form.is_published,
       media: mediaPayload,
-    })
+    });
 
-    markAsUpdated(lineup.value.id)
-    await navigateTo(`/lineups/${lineup.value.id}`, { replace: true })
+    markAsUpdated(lineup.value.id);
+    await navigateTo(`/lineups/${lineup.value.id}`, { replace: true });
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Failed to save'
+    error.value = e instanceof Error ? e.message : "Failed to save";
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}, 500)
+}, 500);
 
 onUnmounted(() => {
   mediaList.value
-    .filter((item): item is NewMediaItem => item != null && item.kind === 'new')
-    .forEach(item => revokePreviewUrl(item.preview))
-})
+    .filter((item): item is NewMediaItem => item != null && item.kind === "new")
+    .forEach((item) => revokePreviewUrl(item.preview));
+});
 </script>

@@ -1,1 +1,1 @@
-allowBuild: '@parcel/watcher,esbuild'
+allowBuild: "@parcel/watcher,esbuild"

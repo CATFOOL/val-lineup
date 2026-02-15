@@ -1,7 +1,9 @@
 <template>
   <div v-if="lineup">
     <div class="flex items-center justify-between mb-6">
-      <button class="text-gray-400 hover:text-white" @click="$router.back()">← Back</button>
+      <button class="text-gray-400 hover:text-white" @click="$router.back()">
+        ← Back
+      </button>
       <div v-if="isOwner" class="flex items-center gap-2">
         <NuxtLink
           :to="`/lineups/${lineup.id}/edit`"
@@ -36,7 +38,11 @@
               class="flex h-full transition-transform duration-300 ease-out"
               :style="{ transform: `translateX(-${currentIndex * 100}%)` }"
             >
-              <div v-for="media in sortedMedia" :key="media.id" class="w-full h-full flex-shrink-0">
+              <div
+                v-for="media in sortedMedia"
+                :key="media.id"
+                class="w-full h-full flex-shrink-0"
+              >
                 <img
                   v-if="media.media_type === 'image'"
                   :src="getImageUrl(media.url, 'medium') ?? undefined"
@@ -44,7 +50,7 @@
                   class="w-full h-full object-contain cursor-zoom-in select-none"
                   draggable="false"
                   @click="openLightbox"
-                >
+                />
                 <video v-else :src="media.url" controls class="w-full h-full" />
               </div>
             </div>
@@ -75,25 +81,35 @@
           </div>
 
           <!-- Media Description -->
-          <div v-if="currentMedia?.description" class="p-4 border-t border-gray-700">
+          <div
+            v-if="currentMedia?.description"
+            class="p-4 border-t border-gray-700"
+          >
             <p class="text-gray-300">{{ currentMedia.description }}</p>
           </div>
 
           <!-- Thumbnails -->
-          <div v-if="lineup.media?.length > 1" class="p-4 border-t border-gray-700">
+          <div
+            v-if="lineup.media?.length > 1"
+            class="p-4 border-t border-gray-700"
+          >
             <div class="flex gap-2 overflow-x-auto">
               <button
                 v-for="(media, index) in sortedMedia"
                 :key="media.id"
                 class="flex-shrink-0 w-20 h-14 rounded overflow-hidden border-2 transition-colors relative"
-                :class="currentIndex === index ? 'border-red-500' : 'border-transparent'"
+                :class="
+                  currentIndex === index
+                    ? 'border-red-500'
+                    : 'border-transparent'
+                "
                 @click="currentIndex = index"
               >
                 <img
                   v-if="media.media_type === 'image'"
                   :src="getImageUrl(media.url, 'thumbnail') ?? undefined"
                   class="w-full h-full object-cover"
-                >
+                />
                 <template v-else>
                   <video
                     :src="media.url"
@@ -131,10 +147,13 @@
               v-if="agent"
               class="bg-red-500 text-white text-sm px-3 py-1 rounded flex items-center gap-1"
             >
-              <img :src="agent.displayIcon" class="w-4 h-4" >
+              <img :src="agent.displayIcon" class="w-4 h-4" />
               {{ agent.displayName }}
             </span>
-            <span v-if="map" class="bg-gray-700 text-white text-sm px-3 py-1 rounded">
+            <span
+              v-if="map"
+              class="bg-gray-700 text-white text-sm px-3 py-1 rounded"
+            >
               {{ map.displayName }}
             </span>
             <span
@@ -143,15 +162,23 @@
             >
               {{ lineup.side }}
             </span>
-            <span v-if="lineup.site" class="bg-gray-700 text-white text-sm px-3 py-1 rounded">
+            <span
+              v-if="lineup.site"
+              class="bg-gray-700 text-white text-sm px-3 py-1 rounded"
+            >
               Site {{ lineup.site }}
             </span>
             <span
               v-if="abilityInfo"
               class="bg-gray-700 text-white text-sm px-3 py-1 rounded flex items-center gap-1"
             >
-              <img v-if="abilityInfo.displayIcon" :src="abilityInfo.displayIcon" class="w-4 h-4" >
-              {{ abilitySlotToKey(lineup.ability ?? '') }} - {{ abilityInfo.displayName }}
+              <img
+                v-if="abilityInfo.displayIcon"
+                :src="abilityInfo.displayIcon"
+                class="w-4 h-4"
+              />
+              {{ abilitySlotToKey(lineup.ability ?? "") }} -
+              {{ abilityInfo.displayName }}
             </span>
           </div>
 
@@ -192,7 +219,9 @@
             :disabled="likeLoading"
             class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-colors"
             :class="
-              isLiked ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              isLiked
+                ? 'bg-red-500 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             "
             @click="toggleLike"
           >
@@ -207,12 +236,16 @@
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
               />
             </svg>
-            <span>{{ likesCount }} {{ likesCount === 1 ? 'Like' : 'Likes' }}</span>
+            <span
+              >{{ likesCount }} {{ likesCount === 1 ? "Like" : "Likes" }}</span
+            >
           </button>
           <button
             class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-colors"
             :class="
-              isBookmarked ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+              isBookmarked
+                ? 'bg-red-500 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
             "
             @click="showBookmarkModal = true"
           >
@@ -225,7 +258,10 @@
             >
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
-            <span>{{ bookmarksCount }} {{ bookmarksCount === 1 ? 'Bookmark' : 'Bookmarks' }}</span>
+            <span
+              >{{ bookmarksCount }}
+              {{ bookmarksCount === 1 ? "Bookmark" : "Bookmarks" }}</span
+            >
           </button>
         </div>
       </div>
@@ -253,7 +289,13 @@
         class="absolute top-4 right-4 text-white/70 hover:text-white z-10"
         @click="showLightbox = false"
       >
-        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          class="w-8 h-8"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       </button>
@@ -262,16 +304,31 @@
         :src="currentMedia.url"
         :alt="currentMedia.description || lineup!.title"
         class="max-w-[95vw] max-h-[95vh] object-contain"
-      >
-      <video v-else :src="currentMedia.url" controls autoplay class="max-w-[95vw] max-h-[95vh]" />
+      />
+      <video
+        v-else
+        :src="currentMedia.url"
+        controls
+        autoplay
+        class="max-w-[95vw] max-h-[95vh]"
+      />
     </div>
 
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/60" @click="showDeleteModal = false" />
-      <div class="relative bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div
+        class="absolute inset-0 bg-black/60"
+        @click="showDeleteModal = false"
+      />
+      <div
+        class="relative bg-gray-800 rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl"
+      >
         <h3 class="text-lg font-semibold text-white mb-2">Delete Lineup</h3>
         <p class="text-gray-400 mb-6">
-          Are you sure you want to delete this lineup? This action cannot be undone.
+          Are you sure you want to delete this lineup? This action cannot be
+          undone.
         </p>
         <div
           v-if="deleteError"
@@ -294,7 +351,12 @@
             :disabled="deleteLoading"
             @click="executeDelete"
           >
-            <svg v-if="deleteLoading" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <svg
+              v-if="deleteLoading"
+              class="w-4 h-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <circle
                 class="opacity-25"
                 cx="12"
@@ -318,242 +380,249 @@
 </template>
 
 <script setup lang="ts">
-import type { LineupWithRelations } from '~/types/database.types'
-import { getImageUrl } from '~/utils/getImageUrl'
+import type { LineupWithRelations } from "~/types/database.types";
+import { getImageUrl } from "~/utils/getImageUrl";
 
-const route = useRoute()
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const { getAgent, getMap, abilitySlotToKey } = useValorantApi()
-const { deleteLineup, toggleLike: toggleLikeApi } = useLineupApi()
-const { markAsDeleted } = useLineupEvents()
+const route = useRoute();
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const { getAgent, getMap, abilitySlotToKey } = useValorantApi();
+const { deleteLineup, toggleLike: toggleLikeApi } = useLineupApi();
+const { markAsDeleted } = useLineupEvents();
 
-const currentIndex = ref(0)
-const likeLoading = ref(false)
-const showBookmarkModal = ref(false)
-const showDeleteModal = ref(false)
-const deleteLoading = ref(false)
-const deleteError = ref<string | null>(null)
-const showLightbox = ref(false)
+const currentIndex = ref(0);
+const likeLoading = ref(false);
+const showBookmarkModal = ref(false);
+const showDeleteModal = ref(false);
+const deleteLoading = ref(false);
+const deleteError = ref<string | null>(null);
+const showLightbox = ref(false);
 
 const openLightbox = () => {
-  if (currentMedia.value) showLightbox.value = true
-}
+  if (currentMedia.value) showLightbox.value = true;
+};
 
 // Touch swipe handling for gallery
-const touchStartX = ref(0)
-const touchEndX = ref(0)
-const minSwipeDistance = 50
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+const minSwipeDistance = 50;
 
 const onTouchStart = (e: TouchEvent) => {
-  touchStartX.value = e.changedTouches[0]?.screenX ?? 0
-}
+  touchStartX.value = e.changedTouches[0]?.screenX ?? 0;
+};
 
 const onTouchMove = (e: TouchEvent) => {
   // Prevent page scroll when swiping horizontally on gallery
-  const currentX = e.changedTouches[0]?.screenX ?? 0
-  const diffX = Math.abs(currentX - touchStartX.value)
-  const diffY = Math.abs((e.changedTouches[0]?.screenY ?? 0) - (e.touches[0]?.screenY ?? 0))
+  const currentX = e.changedTouches[0]?.screenX ?? 0;
+  const diffX = Math.abs(currentX - touchStartX.value);
+  const diffY = Math.abs(
+    (e.changedTouches[0]?.screenY ?? 0) - (e.touches[0]?.screenY ?? 0),
+  );
 
   if (diffX > diffY && diffX > 10) {
-    e.preventDefault()
+    e.preventDefault();
   }
-}
+};
 
 const onTouchEnd = (e: TouchEvent) => {
-  touchEndX.value = e.changedTouches[0]?.screenX ?? 0
-  handleSwipe()
-}
+  touchEndX.value = e.changedTouches[0]?.screenX ?? 0;
+  handleSwipe();
+};
 
 const handleSwipe = () => {
-  const distance = touchStartX.value - touchEndX.value
-  if (Math.abs(distance) < minSwipeDistance) return
+  const distance = touchStartX.value - touchEndX.value;
+  if (Math.abs(distance) < minSwipeDistance) return;
 
   if (distance > 0 && currentIndex.value < sortedMedia.value.length - 1) {
     // Swipe left - next
-    currentIndex.value++
+    currentIndex.value++;
   } else if (distance < 0 && currentIndex.value > 0) {
     // Swipe right - previous
-    currentIndex.value--
+    currentIndex.value--;
   }
-}
+};
 
 const onKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') showLightbox.value = false
-}
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+  if (e.key === "Escape") showLightbox.value = false;
+};
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
 
-const lineupId = route.params.id as string
+const lineupId = route.params.id as string;
 
 const { data: lineup } = await useAsyncData(`lineup-${lineupId}`, async () => {
   const { data } = await supabase
-    .from('lineups')
+    .from("lineups")
     .select(
       `
       *,
       profile:profiles(*),
       media:lineup_media(*)
-    `
+    `,
     )
-    .eq('id', lineupId)
-    .single()
+    .eq("id", lineupId)
+    .single();
 
-  return data as LineupWithRelations | null
-})
+  return data as LineupWithRelations | null;
+});
 
-const currentUserId = computed(() => user.value?.id)
+const currentUserId = computed(() => user.value?.id);
 const isOwner = computed(
-  () => !!lineup.value && !!currentUserId.value && lineup.value.user_id === currentUserId.value
-)
+  () =>
+    !!lineup.value &&
+    !!currentUserId.value &&
+    lineup.value.user_id === currentUserId.value,
+);
 
 // Fetch likes with SSR
 const { data: likesData } = await useAsyncData(
   `lineup-likes-${lineupId}`,
   async () => {
-    if (!lineup.value) return { count: 0, isLiked: false }
+    if (!lineup.value) return { count: 0, isLiked: false };
 
     const { count } = await supabase
-      .from('lineup_likes')
-      .select('*', { count: 'exact', head: true })
-      .eq('lineup_id', lineup.value.id)
+      .from("lineup_likes")
+      .select("*", { count: "exact", head: true })
+      .eq("lineup_id", lineup.value.id);
 
-    let isLiked = false
+    let isLiked = false;
     if (currentUserId.value) {
       const { data } = await supabase
-        .from('lineup_likes')
-        .select('id')
-        .eq('lineup_id', lineup.value.id)
-        .eq('user_id', currentUserId.value)
-        .maybeSingle()
-      isLiked = !!data
+        .from("lineup_likes")
+        .select("id")
+        .eq("lineup_id", lineup.value.id)
+        .eq("user_id", currentUserId.value)
+        .maybeSingle();
+      isLiked = !!data;
     }
 
-    return { count: count || 0, isLiked }
+    return { count: count || 0, isLiked };
   },
-  { watch: [currentUserId] }
-)
+  { watch: [currentUserId] },
+);
 
-const likesCount = computed(() => likesData.value?.count ?? 0)
-const isLiked = computed(() => likesData.value?.isLiked ?? false)
+const likesCount = computed(() => likesData.value?.count ?? 0);
+const isLiked = computed(() => likesData.value?.isLiked ?? false);
 
 // Fetch bookmarks with SSR
 const { data: bookmarksData, refresh: refreshBookmarks } = await useAsyncData(
   `lineup-bookmarks-${lineupId}`,
   async () => {
-    if (!lineup.value) return { count: 0, isBookmarked: false }
+    if (!lineup.value) return { count: 0, isBookmarked: false };
 
     // Count unique users who bookmarked this lineup (not total bookmark records)
     const { data: uniqueUsers } = await supabase
-      .from('lineup_bookmarks')
-      .select('user_id')
-      .eq('lineup_id', lineup.value.id)
+      .from("lineup_bookmarks")
+      .select("user_id")
+      .eq("lineup_id", lineup.value.id);
 
-    const uniqueUserCount = new Set((uniqueUsers ?? []).map(b => b.user_id)).size
+    const uniqueUserCount = new Set((uniqueUsers ?? []).map((b) => b.user_id))
+      .size;
 
-    let isBookmarked = false
+    let isBookmarked = false;
     if (currentUserId.value) {
       // Check if current user has bookmarked this lineup (in any folder)
       const { data } = await supabase
-        .from('lineup_bookmarks')
-        .select('id')
-        .eq('lineup_id', lineup.value.id)
-        .eq('user_id', currentUserId.value)
-        .limit(1)
-      isBookmarked = !!(data && data.length > 0)
+        .from("lineup_bookmarks")
+        .select("id")
+        .eq("lineup_id", lineup.value.id)
+        .eq("user_id", currentUserId.value)
+        .limit(1);
+      isBookmarked = !!(data && data.length > 0);
     }
 
-    return { count: uniqueUserCount, isBookmarked }
+    return { count: uniqueUserCount, isBookmarked };
   },
-  { watch: [currentUserId] }
-)
+  { watch: [currentUserId] },
+);
 
-const bookmarksCount = computed(() => bookmarksData.value?.count ?? 0)
-const isBookmarked = computed(() => bookmarksData.value?.isBookmarked ?? false)
+const bookmarksCount = computed(() => bookmarksData.value?.count ?? 0);
+const isBookmarked = computed(() => bookmarksData.value?.isBookmarked ?? false);
 
 function confirmDelete() {
-  if (!lineup.value || !isOwner.value) return
-  deleteError.value = null
-  showDeleteModal.value = true
+  if (!lineup.value || !isOwner.value) return;
+  deleteError.value = null;
+  showDeleteModal.value = true;
 }
 
 async function executeDelete() {
-  if (!lineup.value || !isOwner.value) return
-  deleteLoading.value = true
-  deleteError.value = null
+  if (!lineup.value || !isOwner.value) return;
+  deleteLoading.value = true;
+  deleteError.value = null;
 
   try {
-    const lineupIdToDelete = lineup.value.id
-    await deleteLineup(lineupIdToDelete)
-    markAsDeleted(lineupIdToDelete)
-    await navigateTo('/profile')
+    const lineupIdToDelete = lineup.value.id;
+    await deleteLineup(lineupIdToDelete);
+    markAsDeleted(lineupIdToDelete);
+    await navigateTo("/profile");
   } catch (e: unknown) {
-    deleteError.value = e instanceof Error ? e.message : 'Failed to delete'
-    deleteLoading.value = false
+    deleteError.value = e instanceof Error ? e.message : "Failed to delete";
+    deleteLoading.value = false;
   }
 }
 
 // Fetch agent and map from Valorant API
 const { data: agent } = await useAsyncData(
   `valorant-agent-${lineup.value?.agent_uuid}`,
-  () => (lineup.value ? getAgent(lineup.value.agent_uuid) : Promise.resolve(null)),
-  { watch: [lineup] }
-)
+  () =>
+    lineup.value ? getAgent(lineup.value.agent_uuid) : Promise.resolve(null),
+  { watch: [lineup] },
+);
 
 const { data: map } = await useAsyncData(
   `valorant-map-${lineup.value?.map_uuid}`,
   () => (lineup.value ? getMap(lineup.value.map_uuid) : Promise.resolve(null)),
-  { watch: [lineup] }
-)
+  { watch: [lineup] },
+);
 
 // Get ability info from agent data
 const abilityInfo = computed(() => {
-  if (!agent.value || !lineup.value) return null
-  return agent.value.abilities.find(a => a.slot === lineup.value!.ability)
-})
+  if (!agent.value || !lineup.value) return null;
+  return agent.value.abilities.find((a) => a.slot === lineup.value!.ability);
+});
 
 // Sort media by sort_order
 const sortedMedia = computed(() => {
-  if (!lineup.value?.media) return []
-  return [...lineup.value.media].sort((a, b) => a.sort_order - b.sort_order)
-})
+  if (!lineup.value?.media) return [];
+  return [...lineup.value.media].sort((a, b) => a.sort_order - b.sort_order);
+});
 
 // Default to cover media index
 const coverIndex = computed(() => {
-  const idx = sortedMedia.value.findIndex(m => m.is_cover)
-  return idx >= 0 ? idx : 0
-})
+  const idx = sortedMedia.value.findIndex((m) => m.is_cover);
+  return idx >= 0 ? idx : 0;
+});
 watch(
   coverIndex,
-  val => {
-    currentIndex.value = val
+  (val) => {
+    currentIndex.value = val;
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 
-const currentMedia = computed(() => sortedMedia.value[currentIndex.value])
+const currentMedia = computed(() => sortedMedia.value[currentIndex.value]);
 
 const toggleLike = async () => {
-  if (!currentUserId.value || !lineup.value) return
+  if (!currentUserId.value || !lineup.value) return;
 
-  likeLoading.value = true
+  likeLoading.value = true;
 
   try {
-    const result = await toggleLikeApi(lineup.value.id)
+    const result = await toggleLikeApi(lineup.value.id);
     // Update local state with server response
-    likesData.value = { count: result.count, isLiked: result.liked }
+    likesData.value = { count: result.count, isLiked: result.liked };
   } catch (e) {
-    console.error('Failed to toggle like:', e)
+    console.error("Failed to toggle like:", e);
   } finally {
-    likeLoading.value = false
+    likeLoading.value = false;
   }
-}
+};
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 </script>

@@ -8,7 +8,13 @@
         <select
           class="md:hidden w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm border border-gray-600 focus:border-red-500 focus:outline-none"
           :value="filters.map"
-          @change="$emit('update-filter', 'map', ($event.target as HTMLSelectElement).value)"
+          @change="
+            $emit(
+              'update-filter',
+              'map',
+              ($event.target as HTMLSelectElement).value,
+            )
+          "
         >
           <option value="">Any</option>
           <option v-for="map in maps" :key="map.uuid" :value="map.uuid">
@@ -16,11 +22,15 @@
           </option>
         </select>
         <!-- Desktop: vertical list with scroll -->
-        <div class="hidden md:block map-scroll-container space-y-1 max-h-[350px]">
+        <div
+          class="hidden md:block map-scroll-container space-y-1 max-h-[350px]"
+        >
           <button
             class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
             :class="
-              filters.map === '' ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'
+              filters.map === ''
+                ? 'bg-red-500 text-white'
+                : 'text-gray-300 hover:bg-gray-700'
             "
             @click="$emit('update-filter', 'map', '')"
           >
@@ -31,7 +41,9 @@
             :key="map.uuid"
             class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
             :class="
-              filters.map === map.uuid ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'
+              filters.map === map.uuid
+                ? 'bg-red-500 text-white'
+                : 'text-gray-300 hover:bg-gray-700'
             "
             @click="$emit('update-filter', 'map', map.uuid)"
           >
@@ -50,8 +62,14 @@
             type="text"
             placeholder="Search by title or description..."
             class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-            @input="$emit('update-filter', 'search', ($event.target as HTMLInputElement).value)"
-          >
+            @input="
+              $emit(
+                'update-filter',
+                'search',
+                ($event.target as HTMLInputElement).value,
+              )
+            "
+          />
         </div>
 
         <!-- Agent Filter -->
@@ -74,14 +92,16 @@
                 :src="agent.displayIcon"
                 :alt="agent.displayName"
                 class="w-full h-full object-cover"
-              >
+              />
             </button>
           </div>
         </div>
 
         <!-- Ability Filter -->
         <div v-if="selectedAgentAbilities.length">
-          <h3 class="text-sm font-medium text-gray-400 mb-2 md:mb-3">Ability</h3>
+          <h3 class="text-sm font-medium text-gray-400 mb-2 md:mb-3">
+            Ability
+          </h3>
           <div class="flex gap-1.5 md:gap-2">
             <button
               v-for="ability in selectedAgentAbilities"
@@ -100,8 +120,10 @@
                 :src="ability.displayIcon"
                 :alt="ability.displayName"
                 class="w-7 h-7 md:w-8 md:h-8 object-contain"
-              >
-              <span v-else class="text-white text-xs">{{ abilitySlotToKey(ability.slot) }}</span>
+              />
+              <span v-else class="text-white text-xs">{{
+                abilitySlotToKey(ability.slot)
+              }}</span>
             </button>
           </div>
         </div>
@@ -154,25 +176,32 @@
 </template>
 
 <script setup lang="ts">
-import type { LineupFilters } from '~/composables/useLineupFilters'
-import type { ValorantAgent, ValorantAbility, ValorantMap } from '~/composables/useValorantApi'
-import { sites, sides } from '~/composables/useLineupFilters'
+import type { LineupFilters } from "~/composables/useLineupFilters";
+import type {
+  ValorantAgent,
+  ValorantAbility,
+  ValorantMap,
+} from "~/composables/useValorantApi";
+import { sites, sides } from "~/composables/useLineupFilters";
 
 defineProps<{
-  filters: LineupFilters
-  agents?: ValorantAgent[] | null
-  maps?: ValorantMap[] | null
-  selectedAgentAbilities: ValorantAbility[]
-  abilitySlotToKey: (slot: string) => string
-}>()
+  filters: LineupFilters;
+  agents?: ValorantAgent[] | null;
+  maps?: ValorantMap[] | null;
+  selectedAgentAbilities: ValorantAbility[];
+  abilitySlotToKey: (slot: string) => string;
+}>();
 
 defineEmits<{
-  'update-filter': [key: keyof LineupFilters, value: LineupFilters[keyof LineupFilters]]
-  'select-agent': [uuid: string]
-  'toggle-ability': [slot: string]
-  'toggle-site': [value: string]
-  'toggle-side': [value: string]
-}>()
+  "update-filter": [
+    key: keyof LineupFilters,
+    value: LineupFilters[keyof LineupFilters],
+  ];
+  "select-agent": [uuid: string];
+  "toggle-ability": [slot: string];
+  "toggle-site": [value: string];
+  "toggle-side": [value: string];
+}>();
 </script>
 
 <style scoped>

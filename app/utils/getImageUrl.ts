@@ -1,10 +1,11 @@
-type ImageSize = 'thumbnail' | 'medium' | 'full'
+type ImageSize = "thumbnail" | "medium" | "full";
 
-const SIZE_CONFIG: Record<ImageSize, { width: number; height: number } | null> = {
-  thumbnail: { width: 400, height: 300 },
-  medium: { width: 1280, height: 720 },
-  full: null,
-}
+const SIZE_CONFIG: Record<ImageSize, { width: number; height: number } | null> =
+  {
+    thumbnail: { width: 400, height: 300 },
+    medium: { width: 1280, height: 720 },
+    full: null,
+  };
 
 /**
  * 将 Supabase Storage URL 转换为带变换参数的 URL
@@ -20,20 +21,20 @@ const SIZE_CONFIG: Record<ImageSize, { width: number; height: number } | null> =
  */
 export function getImageUrl(
   url: string | null | undefined,
-  _size: ImageSize = 'full'
+  _size: ImageSize = "full",
 ): string | null {
-  if (!url) return null
+  if (!url) return null;
 
   // Supabase 免费计划不支持 Image Transformations
   // 升级到 Pro 计划后，将此设为 true 并启用下方代码
-  const ENABLE_TRANSFORMATIONS = false
+  const ENABLE_TRANSFORMATIONS = false;
 
   if (!ENABLE_TRANSFORMATIONS) {
-    return url
+    return url;
   }
 
-  const config = SIZE_CONFIG[_size]
-  if (!config) return url
+  const config = SIZE_CONFIG[_size];
+  if (!config) return url;
 
   // Supabase Storage URL 格式:
   // https://xxx.supabase.co/storage/v1/object/public/bucket-name/path
@@ -41,10 +42,13 @@ export function getImageUrl(
   // https://xxx.supabase.co/storage/v1/render/image/public/bucket-name/path?width=x&height=y
 
   // 只处理 Supabase Storage URL
-  if (!url.includes('/storage/v1/object/')) {
-    return url
+  if (!url.includes("/storage/v1/object/")) {
+    return url;
   }
 
-  const transformUrl = url.replace('/storage/v1/object/', '/storage/v1/render/image/')
-  return `${transformUrl}?width=${config.width}&height=${config.height}&resize=cover&quality=80`
+  const transformUrl = url.replace(
+    "/storage/v1/object/",
+    "/storage/v1/render/image/",
+  );
+  return `${transformUrl}?width=${config.width}&height=${config.height}&resize=cover&quality=80`;
 }

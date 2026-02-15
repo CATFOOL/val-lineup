@@ -11,7 +11,9 @@
       </div>
 
       <!-- Card -->
-      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8">
+      <div
+        class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8"
+      >
         <!-- OAuth Buttons -->
         <div class="space-y-3 mb-6">
           <button
@@ -60,36 +62,45 @@
             <div class="w-full border-t border-gray-600" />
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-gray-800/50 text-gray-400">or sign in with email</span>
+            <span class="px-4 bg-gray-800/50 text-gray-400"
+              >or sign in with email</span
+            >
           </div>
         </div>
 
         <!-- Email Form -->
         <form class="space-y-4" @submit.prevent="handleLogin">
           <div>
-            <label class="block text-gray-300 text-sm font-medium mb-2">Email</label>
+            <label class="block text-gray-300 text-sm font-medium mb-2"
+              >Email</label
+            >
             <input
               v-model="email"
               type="email"
               required
               class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-colors"
               placeholder="your@email.com"
-            >
+            />
           </div>
 
           <div>
-            <label class="block text-gray-300 text-sm font-medium mb-2">Password</label>
+            <label class="block text-gray-300 text-sm font-medium mb-2"
+              >Password</label
+            >
             <input
               v-model="password"
               type="password"
               required
               class="w-full bg-gray-900/50 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-colors"
               placeholder="Your password"
-            >
+            />
           </div>
 
           <!-- Error Message -->
-          <div v-if="error" class="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+          <div
+            v-if="error"
+            class="bg-red-500/10 border border-red-500/50 rounded-lg p-3"
+          >
             <p class="text-red-400 text-sm">{{ error }}</p>
           </div>
 
@@ -124,7 +135,10 @@
         <!-- Register Link -->
         <p class="mt-6 text-center text-gray-400">
           Don't have an account?
-          <NuxtLink to="/register" class="text-red-500 hover:text-red-400 font-medium">
+          <NuxtLink
+            to="/register"
+            class="text-red-500 hover:text-red-400 font-medium"
+          >
             Create one
           </NuxtLink>
         </p>
@@ -135,65 +149,65 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest',
-})
+  middleware: "guest",
+});
 
-const supabase = useSupabaseClient()
+const supabase = useSupabaseClient();
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
+const error = ref("");
 
 const signInWithGoogle = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   const { error: authError } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
       redirectTo: `${window.location.origin}/confirm`,
     },
-  })
+  });
 
   if (authError) {
-    error.value = authError.message
-    loading.value = false
+    error.value = authError.message;
+    loading.value = false;
   }
-}
+};
 
 const signInWithDiscord = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   const { error: authError } = await supabase.auth.signInWithOAuth({
-    provider: 'discord',
+    provider: "discord",
     options: {
       redirectTo: `${window.location.origin}/confirm`,
     },
-  })
+  });
 
   if (authError) {
-    error.value = authError.message
-    loading.value = false
+    error.value = authError.message;
+    loading.value = false;
   }
-}
+};
 
 const handleLogin = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
 
   const { error: authError } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value,
-  })
+  });
 
   if (authError) {
-    error.value = authError.message
-    loading.value = false
-    return
+    error.value = authError.message;
+    loading.value = false;
+    return;
   }
 
-  navigateTo('/')
-}
+  navigateTo("/");
+};
 </script>

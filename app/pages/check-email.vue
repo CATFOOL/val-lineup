@@ -23,17 +23,21 @@
       </div>
 
       <!-- Card -->
-      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8">
+      <div
+        class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-xl p-8"
+      >
         <h1 class="text-2xl font-bold text-white mb-4">Check your email</h1>
 
         <p class="text-gray-400 mb-6">
           We've sent a confirmation link to
-          <span v-if="email" class="text-white font-medium block mt-1">{{ email }}</span>
+          <span v-if="email" class="text-white font-medium block mt-1">{{
+            email
+          }}</span>
         </p>
 
         <p class="text-gray-500 text-sm mb-6">
-          Click the link in the email to activate your account. If you don't see the email, check
-          your spam folder.
+          Click the link in the email to activate your account. If you don't see
+          the email, check your spam folder.
         </p>
 
         <div class="space-y-3">
@@ -64,7 +68,12 @@
               : 'bg-red-500/10 border border-red-500/50'
           "
         >
-          <p :class="messageType === 'success' ? 'text-green-400' : 'text-red-400'" class="text-sm">
+          <p
+            :class="
+              messageType === 'success' ? 'text-green-400' : 'text-red-400'
+            "
+            class="text-sm"
+          >
             {{ message }}
           </p>
         </div>
@@ -73,7 +82,9 @@
       <!-- Back to register -->
       <p class="mt-6 text-gray-500 text-sm">
         Wrong email?
-        <NuxtLink to="/register" class="text-red-500 hover:text-red-400"> Register again </NuxtLink>
+        <NuxtLink to="/register" class="text-red-500 hover:text-red-400">
+          Register again
+        </NuxtLink>
       </p>
     </div>
   </div>
@@ -81,54 +92,54 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'guest',
-})
+  middleware: "guest",
+});
 
-const route = useRoute()
-const supabase = useSupabaseClient()
+const route = useRoute();
+const supabase = useSupabaseClient();
 
-const email = ref((route.query.email as string) || '')
-const resending = ref(false)
-const cooldown = ref(0)
-const message = ref('')
-const messageType = ref<'success' | 'error'>('success')
+const email = ref((route.query.email as string) || "");
+const resending = ref(false);
+const cooldown = ref(0);
+const message = ref("");
+const messageType = ref<"success" | "error">("success");
 
-let cooldownTimer: ReturnType<typeof setInterval> | null = null
+let cooldownTimer: ReturnType<typeof setInterval> | null = null;
 
 const resendEmail = async () => {
-  if (!email.value || cooldown.value > 0) return
+  if (!email.value || cooldown.value > 0) return;
 
-  resending.value = true
-  message.value = ''
+  resending.value = true;
+  message.value = "";
 
   const { error } = await supabase.auth.resend({
-    type: 'signup',
+    type: "signup",
     email: email.value,
-  })
+  });
 
-  resending.value = false
+  resending.value = false;
 
   if (error) {
-    message.value = error.message
-    messageType.value = 'error'
+    message.value = error.message;
+    messageType.value = "error";
   } else {
-    message.value = 'Confirmation email sent!'
-    messageType.value = 'success'
+    message.value = "Confirmation email sent!";
+    messageType.value = "success";
 
     // Start cooldown
-    cooldown.value = 60
+    cooldown.value = 60;
     cooldownTimer = setInterval(() => {
-      cooldown.value--
+      cooldown.value--;
       if (cooldown.value <= 0 && cooldownTimer) {
-        clearInterval(cooldownTimer)
+        clearInterval(cooldownTimer);
       }
-    }, 1000)
+    }, 1000);
   }
-}
+};
 
 onUnmounted(() => {
   if (cooldownTimer) {
-    clearInterval(cooldownTimer)
+    clearInterval(cooldownTimer);
   }
-})
+});
 </script>

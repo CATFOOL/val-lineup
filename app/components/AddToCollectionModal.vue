@@ -1,6 +1,9 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      v-if="show"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
       <div class="absolute inset-0 bg-black/60" @click="emit('close')" />
       <div
         class="relative bg-gray-800 rounded-lg w-full max-w-4xl mx-4 shadow-xl max-h-[80vh] flex flex-col"
@@ -21,10 +24,13 @@
                 type="text"
                 placeholder="Search lineups..."
                 class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-              >
+              />
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-2">
-              <div v-if="loadingLineups" class="text-gray-400 text-center py-4 text-sm">
+              <div
+                v-if="loadingLineups"
+                class="text-gray-400 text-center py-4 text-sm"
+              >
                 Loading lineups...
               </div>
               <template v-else>
@@ -33,25 +39,33 @@
                   :key="lineup.id"
                   class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-700 cursor-pointer transition-colors"
                   :class="{
-                    'opacity-50 pointer-events-none': lineup.adding || addedIds.has(lineup.id),
+                    'opacity-50 pointer-events-none':
+                      lineup.adding || addedIds.has(lineup.id),
                   }"
                   @click="addLineup(lineup)"
                 >
                   <!-- Thumbnail -->
-                  <div class="w-16 h-10 rounded overflow-hidden bg-gray-700 flex-shrink-0">
+                  <div
+                    class="w-16 h-10 rounded overflow-hidden bg-gray-700 flex-shrink-0"
+                  >
                     <img
                       v-if="lineup.thumbnail"
                       :src="lineup.thumbnail"
                       class="w-full h-full object-cover"
-                    >
+                    />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm truncate">{{ lineup.title }}</p>
+                    <p class="text-white text-sm truncate">
+                      {{ lineup.title }}
+                    </p>
                     <p class="text-gray-500 text-xs truncate">
                       {{ lineup.agentName }} · {{ lineup.mapName }}
                     </p>
                   </div>
-                  <div v-if="addedIds.has(lineup.id)" class="text-green-400 flex-shrink-0">
+                  <div
+                    v-if="addedIds.has(lineup.id)"
+                    class="text-green-400 flex-shrink-0"
+                  >
                     <svg
                       class="w-5 h-5"
                       viewBox="0 0 24 24"
@@ -75,7 +89,10 @@
                     </svg>
                   </div>
                 </div>
-                <div v-if="!availableLineups.length" class="text-gray-400 text-center py-4 text-sm">
+                <div
+                  v-if="!availableLineups.length"
+                  class="text-gray-400 text-center py-4 text-sm"
+                >
                   No lineups found.
                 </div>
               </template>
@@ -90,7 +107,10 @@
               </h4>
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-2">
-              <div v-if="loadingCollection" class="text-gray-400 text-center py-4 text-sm">
+              <div
+                v-if="loadingCollection"
+                class="text-gray-400 text-center py-4 text-sm"
+              >
                 Loading...
               </div>
               <template v-else>
@@ -101,15 +121,19 @@
                   :class="{ 'opacity-50 pointer-events-none': lineup.removing }"
                 >
                   <!-- Thumbnail -->
-                  <div class="w-16 h-10 rounded overflow-hidden bg-gray-700 flex-shrink-0">
+                  <div
+                    class="w-16 h-10 rounded overflow-hidden bg-gray-700 flex-shrink-0"
+                  >
                     <img
                       v-if="lineup.thumbnail"
                       :src="lineup.thumbnail"
                       class="w-full h-full object-cover"
-                    >
+                    />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm truncate">{{ lineup.title }}</p>
+                    <p class="text-white text-sm truncate">
+                      {{ lineup.title }}
+                    </p>
                     <p class="text-gray-500 text-xs truncate">
                       {{ lineup.agentName }} · {{ lineup.mapName }}
                     </p>
@@ -158,70 +182,74 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  collectionId: string
-  show: boolean
-}>()
+  collectionId: string;
+  show: boolean;
+}>();
 
 const emit = defineEmits<{
-  close: []
-  updated: []
-}>()
+  close: [];
+  updated: [];
+}>();
 
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-const { getAgents, getMaps } = useValorantApi()
-const currentUserId = computed(() => user.value?.id)
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
+const { getAgents, getMaps } = useValorantApi();
+const currentUserId = computed(() => user.value?.id);
 
-const searchQuery = ref('')
-const loadingLineups = ref(false)
-const loadingCollection = ref(false)
+const searchQuery = ref("");
+const loadingLineups = ref(false);
+const loadingCollection = ref(false);
 
 interface LineupItem {
-  id: string
-  title: string
-  thumbnail: string | null
-  agentName: string
-  mapName: string
-  adding?: boolean
-  removing?: boolean
+  id: string;
+  title: string;
+  thumbnail: string | null;
+  agentName: string;
+  mapName: string;
+  adding?: boolean;
+  removing?: boolean;
 }
 
-const allMyLineups = ref<LineupItem[]>([])
-const collectionLineups = ref<LineupItem[]>([])
-const addedIds = computed(() => new Set(collectionLineups.value.map(l => l.id)))
+const allMyLineups = ref<LineupItem[]>([]);
+const collectionLineups = ref<LineupItem[]>([]);
+const addedIds = computed(
+  () => new Set(collectionLineups.value.map((l) => l.id)),
+);
 
 // Agents/maps for display names
-const { data: agents } = await useAsyncData('valorant-agents', () => getAgents())
-const { data: maps } = await useAsyncData('valorant-maps', () => getMaps())
+const { data: agents } = await useAsyncData("valorant-agents", () =>
+  getAgents(),
+);
+const { data: maps } = await useAsyncData("valorant-maps", () => getMaps());
 
 const agentsMap = computed(() => {
-  if (!agents.value) return {} as Record<string, string>
+  if (!agents.value) return {} as Record<string, string>;
   return agents.value.reduce(
     (acc, a) => {
-      acc[a.uuid] = a.displayName
-      return acc
+      acc[a.uuid] = a.displayName;
+      return acc;
     },
-    {} as Record<string, string>
-  )
-})
+    {} as Record<string, string>,
+  );
+});
 
 const mapsMap = computed(() => {
-  if (!maps.value) return {} as Record<string, string>
+  if (!maps.value) return {} as Record<string, string>;
   return maps.value.reduce(
     (acc, m) => {
-      acc[m.uuid] = m.displayName
-      return acc
+      acc[m.uuid] = m.displayName;
+      return acc;
     },
-    {} as Record<string, string>
-  )
-})
+    {} as Record<string, string>,
+  );
+});
 
 interface RawLineupRow {
-  id: string
-  title: string
-  agent_uuid: string
-  map_uuid: string
-  media: { url: string; sort_order: number; is_cover: boolean }[]
+  id: string;
+  title: string;
+  agent_uuid: string;
+  map_uuid: string;
+  media: { url: string; sort_order: number; is_cover: boolean }[];
 }
 
 function toLineupItem(lineup: RawLineupRow): LineupItem {
@@ -229,42 +257,44 @@ function toLineupItem(lineup: RawLineupRow): LineupItem {
     id: lineup.id,
     title: lineup.title,
     thumbnail: getLineupThumbnail(lineup.media || []),
-    agentName: agentsMap.value[lineup.agent_uuid] || '',
-    mapName: mapsMap.value[lineup.map_uuid] || '',
-  }
+    agentName: agentsMap.value[lineup.agent_uuid] || "",
+    mapName: mapsMap.value[lineup.map_uuid] || "",
+  };
 }
 
 const availableLineups = computed(() => {
-  if (!searchQuery.value) return allMyLineups.value
-  const q = searchQuery.value.toLowerCase()
+  if (!searchQuery.value) return allMyLineups.value;
+  const q = searchQuery.value.toLowerCase();
   return allMyLineups.value.filter(
-    l =>
+    (l) =>
       l.title.toLowerCase().includes(q) ||
       l.agentName.toLowerCase().includes(q) ||
-      l.mapName.toLowerCase().includes(q)
-  )
-})
+      l.mapName.toLowerCase().includes(q),
+  );
+});
 
 async function fetchMyLineups() {
-  if (!currentUserId.value) return
-  loadingLineups.value = true
+  if (!currentUserId.value) return;
+  loadingLineups.value = true;
 
   const { data } = await supabase
-    .from('lineups')
-    .select('id, title, agent_uuid, map_uuid, media:lineup_media(url, sort_order, is_cover)')
-    .eq('user_id', currentUserId.value)
-    .eq('is_published', true)
-    .order('created_at', { ascending: false })
+    .from("lineups")
+    .select(
+      "id, title, agent_uuid, map_uuid, media:lineup_media(url, sort_order, is_cover)",
+    )
+    .eq("user_id", currentUserId.value)
+    .eq("is_published", true)
+    .order("created_at", { ascending: false });
 
-  allMyLineups.value = (data ?? []).map(toLineupItem)
-  loadingLineups.value = false
+  allMyLineups.value = (data ?? []).map(toLineupItem);
+  loadingLineups.value = false;
 }
 
 async function fetchCollectionLineups() {
-  loadingCollection.value = true
+  loadingCollection.value = true;
 
   const { data } = await supabase
-    .from('collection_lineups')
+    .from("collection_lineups")
     .select(
       `
       lineup_id,
@@ -272,61 +302,67 @@ async function fetchCollectionLineups() {
         id, title, agent_uuid, map_uuid,
         media:lineup_media(url, sort_order, is_cover)
       )
-    `
+    `,
     )
-    .eq('collection_id', props.collectionId)
-    .order('sort_order', { ascending: true })
+    .eq("collection_id", props.collectionId)
+    .order("sort_order", { ascending: true });
 
   collectionLineups.value = (data ?? [])
     .map((row: { lineups: RawLineupRow | null }) => row.lineups)
     .filter((l): l is RawLineupRow => Boolean(l))
-    .map(toLineupItem)
+    .map(toLineupItem);
 
-  loadingCollection.value = false
+  loadingCollection.value = false;
 }
 
 async function addLineup(lineup: LineupItem) {
-  if (addedIds.value.has(lineup.id)) return
-  lineup.adding = true
+  if (addedIds.value.has(lineup.id)) return;
+  lineup.adding = true;
 
-  const sortOrder = collectionLineups.value.length
+  const sortOrder = collectionLineups.value.length;
   const { error } = await supabase
-    .from('collection_lineups')
-    .insert({ collection_id: props.collectionId, lineup_id: lineup.id, sort_order: sortOrder } as never)
+    .from("collection_lineups")
+    .insert({
+      collection_id: props.collectionId,
+      lineup_id: lineup.id,
+      sort_order: sortOrder,
+    } as never);
 
   if (!error) {
-    collectionLineups.value.push({ ...lineup, adding: false, removing: false })
-    emit('updated')
+    collectionLineups.value.push({ ...lineup, adding: false, removing: false });
+    emit("updated");
   }
 
-  lineup.adding = false
+  lineup.adding = false;
 }
 
 async function removeLineup(lineup: LineupItem) {
-  lineup.removing = true
+  lineup.removing = true;
 
   const { error } = await supabase
-    .from('collection_lineups')
+    .from("collection_lineups")
     .delete()
-    .eq('collection_id', props.collectionId)
-    .eq('lineup_id', lineup.id)
+    .eq("collection_id", props.collectionId)
+    .eq("lineup_id", lineup.id);
 
   if (!error) {
-    collectionLineups.value = collectionLineups.value.filter(l => l.id !== lineup.id)
-    emit('updated')
+    collectionLineups.value = collectionLineups.value.filter(
+      (l) => l.id !== lineup.id,
+    );
+    emit("updated");
   }
 
-  lineup.removing = false
+  lineup.removing = false;
 }
 
 watch(
   () => props.show,
-  val => {
+  (val) => {
     if (val) {
-      searchQuery.value = ''
-      fetchMyLineups()
-      fetchCollectionLineups()
+      searchQuery.value = "";
+      fetchMyLineups();
+      fetchCollectionLineups();
     }
-  }
-)
+  },
+);
 </script>

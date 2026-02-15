@@ -3,26 +3,26 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ middleware: "auth" });
 
-const user = useSupabaseUser()
-const supabase = useSupabaseClient()
+const user = useSupabaseUser();
+const supabase = useSupabaseClient();
 
 onMounted(async () => {
-  const uid = user.value?.id
+  const uid = user.value?.id;
   if (!uid) {
-    await navigateTo('/login')
-    return
+    await navigateTo("/login");
+    return;
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', uid)
-    .single()
+    .from("profiles")
+    .select("username")
+    .eq("id", uid)
+    .single();
 
   if (profile?.username) {
-    await navigateTo(`/profile/${profile.username}`, { replace: true })
+    await navigateTo(`/profile/${profile.username}`, { replace: true });
   }
-})
+});
 </script>
