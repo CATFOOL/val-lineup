@@ -18,7 +18,10 @@ const SIZE_CONFIG: Record<ImageSize, { width: number; height: number } | null> =
  * @param size - 目标尺寸: 'thumbnail' | 'medium' | 'full'
  * @returns 变换后的 URL，如果是 full 或功能未启用则返回原 URL
  */
-export function getImageUrl(url: string | null | undefined, _size: ImageSize = 'full'): string | null {
+export function getImageUrl(
+  url: string | null | undefined,
+  _size: ImageSize = 'full'
+): string | null {
   if (!url) return null
 
   // Supabase 免费计划不支持 Image Transformations

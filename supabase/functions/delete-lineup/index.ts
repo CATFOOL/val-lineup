@@ -5,26 +5,26 @@ interface DeleteLineupRequest {
   lineup_id: string
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   const corsResponse = handleCors(req)
   if (corsResponse) return corsResponse
 
   try {
     const userId = await getUserId(req)
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const body: DeleteLineupRequest = await req.json()
 
     if (!body.lineup_id) {
-      return new Response(
-        JSON.stringify({ error: 'Missing lineup_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Missing lineup_id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const supabase = createSupabaseClient(req)
@@ -37,10 +37,10 @@ Deno.serve(async (req) => {
       .single()
 
     if (!lineup || lineup.user_id !== userId) {
-      return new Response(
-        JSON.stringify({ error: 'Not found or not authorized' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Not found or not authorized' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // 1. Get all media files to delete from storage
@@ -59,24 +59,21 @@ Deno.serve(async (req) => {
     }
 
     // 3. Delete lineup (cascade will delete media records, likes, bookmarks)
-    const { error: deleteError } = await supabase
-      .from('lineups')
-      .delete()
-      .eq('id', body.lineup_id)
+    const { error: deleteError } = await supabase.from('lineups').delete().eq('id', body.lineup_id)
 
     if (deleteError) {
       throw new Error(`Failed to delete lineup: ${deleteError.message}`)
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

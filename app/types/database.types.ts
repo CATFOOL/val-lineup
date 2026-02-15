@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
   public: {
@@ -296,4 +290,22 @@ export type BookmarkFolder = Database['public']['Tables']['bookmark_folders']['R
 
 export type BookmarkFolderWithCount = BookmarkFolder & {
   lineups_count: number
+}
+
+// Raw Supabase query result types (before count transformation)
+export type RawLineupWithCounts = Lineup & {
+  profile: Profile
+  media: LineupMedia[]
+  likes_count: { count: number }[]
+  bookmarks_count: { count: number }[]
+}
+
+export type RawCollectionWithCounts = Collection & {
+  profile: Profile
+  lineups_count: { count: number }[]
+  subscribers_count: { count: number }[]
+}
+
+export type RawBookmarkFolderWithCount = BookmarkFolder & {
+  lineups_count: { count: number }[]
 }

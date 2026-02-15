@@ -10,7 +10,7 @@
         :src="getImageUrl(firstMedia.url, 'thumbnail') ?? undefined"
         :alt="lineup.title"
         class="w-full h-full object-cover"
-      />
+      >
       <!-- Video preview (first frame) -->
       <video
         v-else-if="firstMedia?.media_type === 'video'"
@@ -24,8 +24,11 @@
         No Image
       </div>
       <div class="absolute top-2 left-2 flex gap-2">
-        <span v-if="agent" class="bg-red-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <img :src="agent.displayIcon" class="w-4 h-4" />
+        <span
+          v-if="agent"
+          class="bg-red-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
+        >
+          <img :src="agent.displayIcon" class="w-4 h-4" >
           {{ agent.displayName }}
         </span>
         <span v-if="map" class="bg-gray-900/80 text-white text-xs px-2 py-1 rounded">
@@ -58,19 +61,25 @@
           @click.prevent.stop="navigateTo(`/profile/${lineup.profile.username}`)"
         >
           <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
           </svg>
           {{ lineup.profile.username }}
         </span>
         <span v-else class="flex items-center gap-1.5 min-w-0 truncate">
           <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
           </svg>
           Anonymous
         </span>
         <span class="flex items-center gap-1 flex-shrink-0">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            />
           </svg>
           {{ lineup.likes_count }}
         </span>
@@ -91,15 +100,15 @@ const props = defineProps<{
 }>()
 
 const siteColors: Record<string, string> = {
-  'A': 'text-rose-400',
-  'B': 'text-green-300',
-  'C': 'text-yellow-300',
-  'Mid': 'text-purple-300',
+  A: 'text-rose-400',
+  B: 'text-green-300',
+  C: 'text-yellow-300',
+  Mid: 'text-purple-300',
 }
 
 const sideColors: Record<string, string> = {
-  'attack': 'text-orange-300',
-  'defense': 'text-cyan-300',
+  attack: 'text-orange-300',
+  defense: 'text-cyan-300',
 }
 
 const siteColor = computed(() => {

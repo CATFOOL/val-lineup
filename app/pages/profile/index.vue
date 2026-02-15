@@ -6,10 +6,10 @@
 definePageMeta({ middleware: 'auth' })
 
 const user = useSupabaseUser()
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 
 onMounted(async () => {
-  const uid = (user.value as any)?.id ?? (user.value as any)?.sub
+  const uid = user.value?.id
   if (!uid) {
     await navigateTo('/login')
     return

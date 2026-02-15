@@ -78,6 +78,7 @@ SMTP_SENDER_NAME=发件人名称
 访问：https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
 
 或用命令生成 JWT_SECRET：
+
 ```bash
 openssl rand -base64 32
 ```
@@ -101,11 +102,11 @@ curl http://127.0.0.1:8000/rest/v1/
 
 ### Supabase 端口说明
 
-| 服务 | 端口 | 说明 |
-|------|------|------|
-| Kong API | 8000 | Supabase API 入口 |
-| Studio | 3000 | 管理面板（建议改为 3001） |
-| PostgreSQL | 5432 | 数据库 |
+| 服务       | 端口 | 说明                      |
+| ---------- | ---- | ------------------------- |
+| Kong API   | 8000 | Supabase API 入口         |
+| Studio     | 3000 | 管理面板（建议改为 3001） |
+| PostgreSQL | 5432 | 数据库                    |
 
 ---
 
@@ -141,22 +142,22 @@ curl http://127.0.0.1:8000/rest/v1/
 编辑 `~/supabase/docker/docker-compose.yml`，找到 `auth` 服务，在 `environment` 部分添加：
 
 ```yaml
-  auth:
-    # ... 其他配置 ...
-    environment:
-      # ... 现有环境变量 ...
+auth:
+  # ... 其他配置 ...
+  environment:
+    # ... 现有环境变量 ...
 
-      # Discord OAuth
-      GOTRUE_EXTERNAL_DISCORD_ENABLED: "true"
-      GOTRUE_EXTERNAL_DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
-      GOTRUE_EXTERNAL_DISCORD_SECRET: ${DISCORD_CLIENT_SECRET}
-      GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
+    # Discord OAuth
+    GOTRUE_EXTERNAL_DISCORD_ENABLED: 'true'
+    GOTRUE_EXTERNAL_DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+    GOTRUE_EXTERNAL_DISCORD_SECRET: ${DISCORD_CLIENT_SECRET}
+    GOTRUE_EXTERNAL_DISCORD_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
 
-      # Google OAuth
-      GOTRUE_EXTERNAL_GOOGLE_ENABLED: "true"
-      GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
+    # Google OAuth
+    GOTRUE_EXTERNAL_GOOGLE_ENABLED: 'true'
+    GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET}
+    GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${API_EXTERNAL_URL}/auth/v1/callback
 ```
 
 ### 4. 添加环境变量
@@ -199,14 +200,17 @@ docker exec supabase-auth env | grep -E "DISCORD|GOOGLE"
 ### 常见问题
 
 **"Unsupported provider: provider is not enabled"**
+
 - 检查 `docker-compose.yml` 中是否正确添加了 `GOTRUE_EXTERNAL_xxx_ENABLED: "true"`
 - 确保重启了 Supabase
 
 **"OAuth2 redirect_uri 无效"**
+
 - 检查 Discord/Google 后台配置的回调地址是否与 `API_EXTERNAL_URL` 一致
 - 回调地址必须完全匹配，包括协议（http/https）和端口
 
 **登录后卡在 "Confirming your account..."**
+
 - 检查 `SITE_URL` 是否正确指向前端地址
 - 检查 `GOTRUE_URI_ALLOW_LIST` 是否包含前端地址
 
@@ -266,6 +270,7 @@ curl http://127.0.0.1:3000
 ### 6. 开放防火墙端口
 
 在宝塔或服务器防火墙中放行：
+
 - `3000` - Nuxt 应用
 - `8000` - Supabase API
 
@@ -275,12 +280,12 @@ curl http://127.0.0.1:3000
 
 项目包含 4 个 Supabase Edge Functions：
 
-| 函数 | 功能 |
-|------|------|
+| 函数            | 功能                   |
+| --------------- | ---------------------- |
 | `create-lineup` | 创建阵容并上传媒体文件 |
-| `update-lineup` | 更新阵容及媒体管理 |
-| `delete-lineup` | 删除阵容并清理存储 |
-| `toggle-like` | 切换阵容点赞状态 |
+| `update-lineup` | 更新阵容及媒体管理     |
+| `delete-lineup` | 删除阵容并清理存储     |
+| `toggle-like`   | 切换阵容点赞状态       |
 
 ### 前提条件
 
@@ -306,10 +311,10 @@ Edge Functions 位于项目的 `supabase/functions/` 目录中。需要将该目
 编辑 `~/supabase/docker/docker-compose.yml`，找到 `edge-runtime`（或 `functions`）服务，添加 volumes 挂载：
 
 ```yaml
-  edge-runtime:
-    # ... 其他配置 ...
-    volumes:
-      - /www/wwwroot/val-lineup/supabase/functions:/home/deno/functions
+edge-runtime:
+  # ... 其他配置 ...
+  volumes:
+    - /www/wwwroot/val-lineup/supabase/functions:/home/deno/functions
 ```
 
 > 挂载路径中 `/home/deno/functions` 是 edge-runtime 容器内的默认函数目录，请根据实际 Supabase 版本确认。
@@ -384,6 +389,7 @@ docker restart supabase-edge-functions
 ### 日常更新（本地修改后）
 
 **本地操作：**
+
 ```bash
 git add .
 git commit -m "更新内容"
@@ -391,6 +397,7 @@ git push
 ```
 
 **服务器操作：**
+
 ```bash
 cd /www/wwwroot/val-lineup
 git pull
@@ -408,11 +415,13 @@ docker-compose up -d --build
 5. 清理旧 Docker 镜像
 
 赋予执行权限：
+
 ```bash
 chmod +x deploy.sh
 ```
 
 之后更新只需：
+
 ```bash
 ./deploy.sh
 ```
@@ -420,6 +429,7 @@ chmod +x deploy.sh
 ### 数据库迁移更新
 
 如果有新的迁移文件：
+
 ```bash
 docker exec -i supabase-db psql -U postgres < supabase/migrations/新文件.sql
 ```

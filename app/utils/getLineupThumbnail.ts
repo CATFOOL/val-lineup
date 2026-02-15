@@ -1,4 +1,6 @@
-export function getLineupThumbnail(media: { url: string; sort_order?: number; is_cover?: boolean }[]): string | null {
+export function getLineupThumbnail(
+  media: { url: string; sort_order?: number; is_cover?: boolean }[]
+): string | null {
   if (!media?.length) return null
   const cover = media.find(m => m.is_cover)
   if (cover) return cover.url

@@ -16,7 +16,7 @@ export const defaultFilters: LineupFilters = {
   agent: '',
   abilities: [],
   site: '',
-  side: ''
+  side: '',
 }
 
 export const sites = [
@@ -24,13 +24,13 @@ export const sites = [
   { value: 'A', label: 'A' },
   { value: 'B', label: 'B' },
   { value: 'C', label: 'C' },
-  { value: 'Mid', label: 'Mid' }
+  { value: 'Mid', label: 'Mid' },
 ]
 
 export const sides = [
   { value: '', label: 'All' },
   { value: 'defense', label: 'Defense' },
-  { value: 'attack', label: 'Attack' }
+  { value: 'attack', label: 'Attack' },
 ]
 
 export interface UseLineupFiltersOptions {
@@ -57,18 +57,24 @@ export function useLineupFilters(options: UseLineupFiltersOptions = {}) {
   // Create lookup maps
   const agentsMap = computed(() => {
     if (!agents.value) return {}
-    return agents.value.reduce((acc, agent) => {
-      acc[agent.uuid] = agent
-      return acc
-    }, {} as Record<string, (typeof agents.value)[0]>)
+    return agents.value.reduce(
+      (acc, agent) => {
+        acc[agent.uuid] = agent
+        return acc
+      },
+      {} as Record<string, (typeof agents.value)[0]>
+    )
   })
 
   const mapsMap = computed(() => {
     if (!maps.value) return {}
-    return maps.value.reduce((acc, map) => {
-      acc[map.uuid] = map
-      return acc
-    }, {} as Record<string, (typeof maps.value)[0]>)
+    return maps.value.reduce(
+      (acc, map) => {
+        acc[map.uuid] = map
+        return acc
+      },
+      {} as Record<string, (typeof maps.value)[0]>
+    )
   })
 
   // Get abilities for selected agent
@@ -132,9 +138,9 @@ export function useLineupFilters(options: UseLineupFiltersOptions = {}) {
   }
 
   // Apply filters to a Supabase query
-  const applyFiltersToQuery = <T>(query: T): T => {
+  const applyFiltersToQuery = <T extends { eq: (col: string, val: string) => T; in: (col: string, vals: string[]) => T; or: (expr: string) => T }>(query: T): T => {
     const f = filters.value
-    let q = query as any
+    let q = query
     if (f.map) q = q.eq('map_uuid', f.map)
     if (f.agent) q = q.eq('agent_uuid', f.agent)
     if (f.abilities.length) q = q.in('ability', f.abilities)
@@ -144,7 +150,7 @@ export function useLineupFilters(options: UseLineupFiltersOptions = {}) {
       const pattern = `%${f.search}%`
       q = q.or(`title.ilike.${pattern},description.ilike.${pattern}`)
     }
-    return q as T
+    return q
   }
 
   // Watch for filter changes (excluding search which should be debounced)
@@ -154,7 +160,7 @@ export function useLineupFilters(options: UseLineupFiltersOptions = {}) {
       filters.value.agent,
       filters.value.abilities.length,
       filters.value.site,
-      filters.value.side
+      filters.value.side,
     ],
     () => {
       onFiltersChange?.()
@@ -178,6 +184,6 @@ export function useLineupFilters(options: UseLineupFiltersOptions = {}) {
     hasActiveFilters,
     clearFilters,
     applyFiltersToQuery,
-    abilitySlotToKey
+    abilitySlotToKey,
   }
 }

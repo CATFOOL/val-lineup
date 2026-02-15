@@ -18,18 +18,18 @@
               placeholder="Folder name..."
               class="w-full bg-gray-900 text-white px-4 py-3 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none text-sm"
               @keyup.enter="createAndAdd"
-            />
+            >
             <div class="flex gap-2">
               <button
-                @click="createAndAdd"
                 :disabled="!newTitle.trim() || creating"
                 class="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-4 py-2 rounded-md text-sm transition-colors"
+                @click="createAndAdd"
               >
                 {{ creating ? 'Creating...' : 'Create' }}
               </button>
               <button
-                @click="showCreateForm = false"
                 class="bg-gray-700 text-gray-300 px-4 py-2 rounded-md text-sm hover:bg-gray-600 transition-colors"
+                @click="showCreateForm = false"
               >
                 Cancel
               </button>
@@ -37,29 +37,38 @@
           </div>
           <button
             v-else
-            @click="showCreateForm = true"
             class="w-full text-left px-4 py-3 rounded-md bg-gray-900 text-gray-300 hover:bg-gray-700 border border-dashed border-gray-600 text-sm transition-colors"
+            @click="showCreateForm = true"
           >
             + New Folder
           </button>
 
           <!-- Loading -->
-          <div v-if="loading" class="text-gray-400 text-center py-4 text-sm">Loading folders...</div>
+          <div v-if="loading" class="text-gray-400 text-center py-4 text-sm">
+            Loading folders...
+          </div>
 
           <!-- Folders List -->
           <template v-else>
             <div
               v-for="folder in userFolders"
               :key="folder.id"
-              @click="toggleBookmark(folder)"
               class="flex items-center gap-3 px-4 py-3 rounded-md bg-gray-900 hover:bg-gray-700 cursor-pointer transition-colors"
               :class="{ 'opacity-50 pointer-events-none': folder.toggling }"
+              @click="toggleBookmark(folder)"
             >
               <div
                 class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0"
                 :class="folder.hasLineup ? 'bg-red-500 border-red-500' : 'border-gray-500'"
               >
-                <svg v-if="folder.hasLineup" class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <svg
+                  v-if="folder.hasLineup"
+                  class="w-3 h-3 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
               </div>
@@ -68,11 +77,16 @@
                   {{ folder.title }}
                   <span v-if="folder.is_default" class="text-xs text-red-500">(Default)</span>
                 </p>
-                <p class="text-gray-500 text-xs">{{ folder.lineups_count }} {{ folder.lineups_count === 1 ? 'lineup' : 'lineups' }}</p>
+                <p class="text-gray-500 text-xs">
+                  {{ folder.lineups_count }} {{ folder.lineups_count === 1 ? 'lineup' : 'lineups' }}
+                </p>
               </div>
             </div>
 
-            <div v-if="!userFolders.length && !showCreateForm" class="text-gray-400 text-center py-4 text-sm">
+            <div
+              v-if="!userFolders.length && !showCreateForm"
+              class="text-gray-400 text-center py-4 text-sm"
+            >
               No folders yet. Create one above!
             </div>
           </template>
@@ -81,8 +95,8 @@
         <!-- Footer -->
         <div class="p-6 border-t border-gray-700">
           <button
-            @click="emit('close')"
             class="w-full bg-gray-700 text-gray-200 py-2.5 rounded-md hover:bg-gray-600 text-sm transition-colors"
+            @click="emit('close')"
           >
             Done
           </button>
@@ -103,9 +117,9 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 const user = useSupabaseUser()
-const currentUserId = computed(() => (user.value as any)?.id ?? (user.value as any)?.sub)
+const currentUserId = computed(() => user.value?.id)
 
 const loading = ref(false)
 const creating = ref(false)
@@ -142,15 +156,15 @@ async function fetchFolders() {
     .eq('lineup_id', props.lineupId)
     .eq('user_id', currentUserId.value)
 
-  const existingFolderIds = new Set((existing ?? []).map((e: any) => e.folder_id).filter(Boolean))
+  const existingFolderIds = new Set((existing ?? []).map((e: { folder_id: string | null }) => e.folder_id).filter(Boolean))
 
-  userFolders.value = (folders ?? []).map((folder: any) => ({
+  userFolders.value = (folders ?? []).map((folder: { id: string; title: string; is_default: boolean; lineups_count: { count: number }[] }) => ({
     id: folder.id,
     title: folder.title,
     is_default: folder.is_default,
     lineups_count: folder.lineups_count?.[0]?.count ?? 0,
     hasLineup: existingFolderIds.has(folder.id),
-    toggling: false
+    toggling: false,
   }))
 
   // If user has no folders, auto-create default folder
@@ -169,7 +183,7 @@ async function createDefaultFolder() {
     .insert({
       user_id: currentUserId.value,
       title: 'Default',
-      is_default: true
+      is_default: true,
     })
     .select('id, title, is_default')
     .single()
@@ -181,7 +195,7 @@ async function createDefaultFolder() {
       is_default: newFolder.is_default,
       lineups_count: 0,
       hasLineup: false,
-      toggling: false
+      toggling: false,
     })
   }
 }
@@ -201,13 +215,11 @@ async function toggleBookmark(folder: FolderItem) {
     folder.lineups_count--
   } else {
     // Add bookmark
-    await supabase
-      .from('lineup_bookmarks')
-      .insert({
-        folder_id: folder.id,
-        lineup_id: props.lineupId,
-        user_id: currentUserId.value
-      })
+    await supabase.from('lineup_bookmarks').insert({
+      folder_id: folder.id,
+      lineup_id: props.lineupId,
+      user_id: currentUserId.value,
+    })
     folder.hasLineup = true
     folder.lineups_count++
   }
@@ -225,20 +237,18 @@ async function createAndAdd() {
     .insert({
       user_id: currentUserId.value,
       title: newTitle.value.trim(),
-      is_default: false
+      is_default: false,
     })
     .select('id, title, is_default')
     .single()
 
   if (newFolder) {
     // Auto-add current lineup after creating folder
-    await supabase
-      .from('lineup_bookmarks')
-      .insert({
-        folder_id: newFolder.id,
-        lineup_id: props.lineupId,
-        user_id: currentUserId.value
-      })
+    await supabase.from('lineup_bookmarks').insert({
+      folder_id: newFolder.id,
+      lineup_id: props.lineupId,
+      user_id: currentUserId.value,
+    })
 
     userFolders.value.push({
       id: newFolder.id,
@@ -246,7 +256,7 @@ async function createAndAdd() {
       is_default: newFolder.is_default,
       lineups_count: 1,
       hasLineup: true,
-      toggling: false
+      toggling: false,
     })
 
     emit('updated')
@@ -257,12 +267,15 @@ async function createAndAdd() {
   creating.value = false
 }
 
-watch(() => props.show, (val) => {
-  if (val) {
-    fetchFolders()
-  } else {
-    showCreateForm.value = false
-    newTitle.value = ''
+watch(
+  () => props.show,
+  val => {
+    if (val) {
+      fetchFolders()
+    } else {
+      showCreateForm.value = false
+      newTitle.value = ''
+    }
   }
-})
+)
 </script>

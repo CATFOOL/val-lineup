@@ -31,7 +31,10 @@ export function createSupabaseAdmin() {
 
 export async function getUserId(req: Request): Promise<string | null> {
   const supabase = createSupabaseClient(req)
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error) {
     console.error('Auth error:', error.message)
     return null

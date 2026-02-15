@@ -24,26 +24,26 @@ interface UpdateLineupRequest {
   media: MediaInput[]
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   const corsResponse = handleCors(req)
   if (corsResponse) return corsResponse
 
   try {
     const userId = await getUserId(req)
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const body: UpdateLineupRequest = await req.json()
 
     if (!body.lineup_id || !body.title || !body.agent_uuid || !body.map_uuid) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const supabase = createSupabaseClient(req)
@@ -56,10 +56,10 @@ Deno.serve(async (req) => {
       .single()
 
     if (!existing || existing.user_id !== userId) {
-      return new Response(
-        JSON.stringify({ error: 'Not found or not authorized' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Not found or not authorized' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // 1. Update lineup record
@@ -132,9 +132,10 @@ Deno.serve(async (req) => {
           webm: 'video/webm',
           mov: 'video/quicktime',
         }
-        const contentType = item.type === 'video'
-          ? (contentTypeMap[ext] || 'video/mp4')
-          : (contentTypeMap[ext] || 'image/jpeg')
+        const contentType =
+          item.type === 'video'
+            ? contentTypeMap[ext] || 'video/mp4'
+            : contentTypeMap[ext] || 'image/jpeg'
 
         const { error: uploadError } = await supabase.storage
           .from('lineup-media')
@@ -146,12 +147,11 @@ Deno.serve(async (req) => {
           throw new Error(`Failed to upload media: ${uploadError.message}`)
         }
 
-        const { data: urlData } = supabase.storage
-          .from('lineup-media')
-          .getPublicUrl(fileName)
+        const { data: urlData } = supabase.storage.from('lineup-media').getPublicUrl(fileName)
 
         // Fix local dev URL: replace internal docker hostname with public URL
-        const publicSupabaseUrl = Deno.env.get('PUBLIC_SUPABASE_URL') || Deno.env.get('SUPABASE_URL')!
+        const publicSupabaseUrl =
+          Deno.env.get('PUBLIC_SUPABASE_URL') || Deno.env.get('SUPABASE_URL')!
         const internalUrl = Deno.env.get('SUPABASE_URL')!
         const publicUrl = urlData.publicUrl.replace(internalUrl, publicSupabaseUrl)
 
@@ -166,15 +166,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

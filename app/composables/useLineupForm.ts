@@ -1,4 +1,4 @@
-import type { ValorantAgent, ValorantAbility, ValorantMap } from './useValorantApi'
+import type { ValorantAbility } from './useValorantApi'
 import { compressImage } from '~/utils/compressImage'
 
 export interface LineupFormData {
@@ -33,7 +33,7 @@ export const useLineupForm = () => {
     side: '',
     site: '',
     ability: '',
-    is_published: true
+    is_published: true,
   })
 
   // Fetch agents and maps
@@ -46,22 +46,28 @@ export const useLineupForm = () => {
     const agent = agents.value.find(a => a.uuid === form.agent_uuid)
     const abilities = agent?.abilities.filter(a => a.slot !== 'Passive') || []
     const slotOrder: Record<string, number> = {
-      'Grenade': 0,   // C
-      'Ability1': 1,  // Q
-      'Ability2': 2,  // E
-      'Ultimate': 3   // X
+      Grenade: 0, // C
+      Ability1: 1, // Q
+      Ability2: 2, // E
+      Ultimate: 3, // X
     }
     return abilities.sort((a, b) => (slotOrder[a.slot] ?? 99) - (slotOrder[b.slot] ?? 99))
   })
 
   // Reset ability when agent changes
-  watch(() => form.agent_uuid, () => {
-    form.ability = ''
-  })
+  watch(
+    () => form.agent_uuid,
+    () => {
+      form.ability = ''
+    }
+  )
 
   // Process files into media items (returns items, caller decides where to store)
   // Images are automatically compressed before creating preview
-  const processFiles = async (files: FileList | File[], existingHasCover = false): Promise<NewMediaItem[]> => {
+  const processFiles = async (
+    files: FileList | File[],
+    existingHasCover = false
+  ): Promise<NewMediaItem[]> => {
     const items: NewMediaItem[] = []
     const fileArray = Array.from(files)
 
@@ -78,7 +84,7 @@ export const useLineupForm = () => {
         type,
         preview: URL.createObjectURL(file),
         description: '',
-        is_cover: !existingHasCover && i === 0
+        is_cover: !existingHasCover && i === 0,
       })
     }
     return items
@@ -96,6 +102,6 @@ export const useLineupForm = () => {
     selectedAgentAbilities,
     abilitySlotToKey,
     processFiles,
-    revokePreviewUrl
+    revokePreviewUrl,
   }
 }

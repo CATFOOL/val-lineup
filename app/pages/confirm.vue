@@ -53,9 +53,13 @@ onMounted(async () => {
   }
 })
 
-watch(user, (newUser) => {
-  if (newUser && !error.value) {
-    navigateTo('/')
-  }
-}, { immediate: true })
+watch(
+  user,
+  newUser => {
+    if (newUser && !error.value) {
+      navigateTo('/')
+    }
+  },
+  { immediate: true }
+)
 </script>

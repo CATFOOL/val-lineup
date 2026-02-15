@@ -21,17 +21,17 @@ interface CreateLineupRequest {
   media: MediaInput[]
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   const corsResponse = handleCors(req)
   if (corsResponse) return corsResponse
 
   try {
     const userId = await getUserId(req)
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const body: CreateLineupRequest = await req.json()
@@ -90,9 +90,10 @@ Deno.serve(async (req) => {
         webm: 'video/webm',
         mov: 'video/quicktime',
       }
-      const contentType = item.type === 'video'
-        ? (contentTypeMap[ext] || 'video/mp4')
-        : (contentTypeMap[ext] || 'image/jpeg')
+      const contentType =
+        item.type === 'video'
+          ? contentTypeMap[ext] || 'video/mp4'
+          : contentTypeMap[ext] || 'image/jpeg'
 
       const { error: uploadError } = await supabase.storage
         .from('lineup-media')
@@ -107,9 +108,7 @@ Deno.serve(async (req) => {
       }
 
       // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('lineup-media')
-        .getPublicUrl(fileName)
+      const { data: urlData } = supabase.storage.from('lineup-media').getPublicUrl(fileName)
 
       // Fix local dev URL: replace internal docker hostname with public URL
       const publicSupabaseUrl = Deno.env.get('PUBLIC_SUPABASE_URL') || Deno.env.get('SUPABASE_URL')!
@@ -128,9 +127,7 @@ Deno.serve(async (req) => {
 
     // 3. Insert media records
     if (mediaRecords.length > 0) {
-      const { error: mediaError } = await supabase
-        .from('lineup_media')
-        .insert(mediaRecords)
+      const { error: mediaError } = await supabase.from('lineup_media').insert(mediaRecords)
 
       if (mediaError) {
         // Rollback: delete lineup and uploaded files
@@ -143,15 +140,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ lineup_id: lineup.id }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ lineup_id: lineup.id }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

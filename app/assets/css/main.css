@@ -24,10 +24,11 @@ select {
 
 /* Media drag reorder: smooth animation + ghost/chosen feedback */
 .media-drag-item {
-  transition: box-shadow 0.25s ease,
-              opacity 0.25s ease,
-              background-color 0.25s ease,
-              border-color 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    opacity 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease;
   border: 2px solid transparent;
 }
 
@@ -44,8 +45,9 @@ select {
   opacity: 1;
   background-color: #1a2634 !important;
   border-color: #ff4655 !important;
-  box-shadow: 0 12px 40px rgba(255, 70, 85, 0.35),
-              0 6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 12px 40px rgba(255, 70, 85, 0.35),
+    0 6px 20px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
 

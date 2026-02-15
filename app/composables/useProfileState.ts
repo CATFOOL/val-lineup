@@ -19,7 +19,7 @@ export function useProfileState(username: string) {
     activeTab: 'lineups',
     scrollPosition: 0,
     lineups: [],
-    hasMore: true
+    hasMore: true,
   }))
 
   const activeTab = computed(() => state.value.activeTab)
@@ -63,6 +63,6 @@ export function useProfileState(username: string) {
     saveScrollPosition,
     restoreScrollPosition,
     setCachedLineups,
-    clearCachedLineups
+    clearCachedLineups,
   }
 }

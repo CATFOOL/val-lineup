@@ -11,7 +11,7 @@
           :key="i"
           :src="src"
           class="w-full h-full object-cover"
-        />
+        >
         <!-- Fill empty slots if less than 4 -->
         <div
           v-for="n in Math.max(0, 4 - coverImages.length)"
@@ -20,12 +20,21 @@
         />
       </div>
       <div v-else class="w-full h-full flex items-center justify-center text-gray-500">
-        <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <svg
+          class="w-12 h-12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        >
           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
         </svg>
       </div>
       <!-- Default badge -->
-      <div v-if="folder.is_default" class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded">
+      <div
+        v-if="folder.is_default"
+        class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded"
+      >
         Default
       </div>
       <!-- Lineup count badge -->

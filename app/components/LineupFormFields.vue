@@ -10,7 +10,7 @@
         required
         class="w-full bg-gray-900 text-white px-4 py-3 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none"
         placeholder="e.g., Sova Recon Arrow from A Site to B Main"
-      />
+      >
     </div>
 
     <div>
@@ -87,7 +87,11 @@
           class="w-full bg-gray-900 text-white px-4 py-3 rounded-md border border-gray-700 focus:border-red-500 focus:outline-none"
         >
           <option value="">Any / Not Specified</option>
-          <option v-for="ability in selectedAgentAbilities" :key="ability.slot" :value="ability.slot">
+          <option
+            v-for="ability in selectedAgentAbilities"
+            :key="ability.slot"
+            :value="ability.slot"
+          >
             {{ abilitySlotToKey(ability.slot) }} - {{ ability.displayName }}
           </option>
         </select>
@@ -100,8 +104,9 @@
 import type { ValorantAgent, ValorantAbility } from '~/composables/useValorantApi'
 import type { LineupFormData } from '~/composables/useLineupForm'
 
+const form = defineModel<LineupFormData>('form', { required: true })
+
 defineProps<{
-  form: LineupFormData
   agents: ValorantAgent[] | null | undefined
   maps: { uuid: string; displayName: string }[] | null | undefined
   selectedAgentAbilities: ValorantAbility[]

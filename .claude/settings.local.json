@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npx nuxi@latest init . --force)"
-    ]
+    "allow": ["Bash(npx nuxi@latest init . --force)"]
   }
 }

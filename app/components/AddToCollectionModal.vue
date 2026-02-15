@@ -2,7 +2,9 @@
   <Teleport to="body">
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60" @click="emit('close')" />
-      <div class="relative bg-gray-800 rounded-lg w-full max-w-4xl mx-4 shadow-xl max-h-[80vh] flex flex-col">
+      <div
+        class="relative bg-gray-800 rounded-lg w-full max-w-4xl mx-4 shadow-xl max-h-[80vh] flex flex-col"
+      >
         <!-- Header -->
         <div class="p-6 border-b border-gray-700 flex-shrink-0">
           <h3 class="text-lg font-semibold text-white">Add Lineups</h3>
@@ -19,17 +21,21 @@
                 type="text"
                 placeholder="Search lineups..."
                 class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-              />
+              >
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-2">
-              <div v-if="loadingLineups" class="text-gray-400 text-center py-4 text-sm">Loading lineups...</div>
+              <div v-if="loadingLineups" class="text-gray-400 text-center py-4 text-sm">
+                Loading lineups...
+              </div>
               <template v-else>
                 <div
                   v-for="lineup in availableLineups"
                   :key="lineup.id"
-                  @click="addLineup(lineup)"
                   class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-700 cursor-pointer transition-colors"
-                  :class="{ 'opacity-50 pointer-events-none': lineup.adding || addedIds.has(lineup.id) }"
+                  :class="{
+                    'opacity-50 pointer-events-none': lineup.adding || addedIds.has(lineup.id),
+                  }"
+                  @click="addLineup(lineup)"
                 >
                   <!-- Thumbnail -->
                   <div class="w-16 h-10 rounded overflow-hidden bg-gray-700 flex-shrink-0">
@@ -37,19 +43,33 @@
                       v-if="lineup.thumbnail"
                       :src="lineup.thumbnail"
                       class="w-full h-full object-cover"
-                    />
+                    >
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-white text-sm truncate">{{ lineup.title }}</p>
-                    <p class="text-gray-500 text-xs truncate">{{ lineup.agentName }} · {{ lineup.mapName }}</p>
+                    <p class="text-gray-500 text-xs truncate">
+                      {{ lineup.agentName }} · {{ lineup.mapName }}
+                    </p>
                   </div>
                   <div v-if="addedIds.has(lineup.id)" class="text-green-400 flex-shrink-0">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </div>
                   <div v-else class="text-gray-500 flex-shrink-0">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <line x1="12" y1="5" x2="12" y2="19" />
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
@@ -65,10 +85,14 @@
           <!-- Right Pane: In Collection -->
           <div class="w-1/2 flex flex-col">
             <div class="p-4 border-b border-gray-700 flex-shrink-0">
-              <h4 class="text-sm font-medium text-gray-400">In Collection ({{ collectionLineups.length }})</h4>
+              <h4 class="text-sm font-medium text-gray-400">
+                In Collection ({{ collectionLineups.length }})
+              </h4>
             </div>
             <div class="flex-1 overflow-y-auto p-4 space-y-2">
-              <div v-if="loadingCollection" class="text-gray-400 text-center py-4 text-sm">Loading...</div>
+              <div v-if="loadingCollection" class="text-gray-400 text-center py-4 text-sm">
+                Loading...
+              </div>
               <template v-else>
                 <div
                   v-for="lineup in collectionLineups"
@@ -82,24 +106,35 @@
                       v-if="lineup.thumbnail"
                       :src="lineup.thumbnail"
                       class="w-full h-full object-cover"
-                    />
+                    >
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-white text-sm truncate">{{ lineup.title }}</p>
-                    <p class="text-gray-500 text-xs truncate">{{ lineup.agentName }} · {{ lineup.mapName }}</p>
+                    <p class="text-gray-500 text-xs truncate">
+                      {{ lineup.agentName }} · {{ lineup.mapName }}
+                    </p>
                   </div>
                   <button
-                    @click="removeLineup(lineup)"
                     class="text-gray-400 hover:text-red-400 flex-shrink-0 transition-colors"
                     title="Remove from collection"
+                    @click="removeLineup(lineup)"
                   >
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <line x1="18" y1="6" x2="6" y2="18" />
                       <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                   </button>
                 </div>
-                <div v-if="!collectionLineups.length" class="text-gray-400 text-center py-4 text-sm">
+                <div
+                  v-if="!collectionLineups.length"
+                  class="text-gray-400 text-center py-4 text-sm"
+                >
                   No lineups added yet.
                 </div>
               </template>
@@ -110,8 +145,8 @@
         <!-- Footer -->
         <div class="p-6 border-t border-gray-700 flex-shrink-0">
           <button
-            @click="emit('close')"
             class="w-full bg-gray-700 text-gray-200 py-2.5 rounded-md hover:bg-gray-600 text-sm transition-colors"
+            @click="emit('close')"
           >
             Done
           </button>
@@ -132,10 +167,10 @@ const emit = defineEmits<{
   updated: []
 }>()
 
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const { getAgents, getMaps } = useValorantApi()
-const currentUserId = computed(() => (user.value as any)?.id ?? (user.value as any)?.sub)
+const currentUserId = computed(() => user.value?.id)
 
 const searchQuery = ref('')
 const loadingLineups = ref(false)
@@ -161,31 +196,52 @@ const { data: maps } = await useAsyncData('valorant-maps', () => getMaps())
 
 const agentsMap = computed(() => {
   if (!agents.value) return {} as Record<string, string>
-  return agents.value.reduce((acc, a) => { acc[a.uuid] = a.displayName; return acc }, {} as Record<string, string>)
+  return agents.value.reduce(
+    (acc, a) => {
+      acc[a.uuid] = a.displayName
+      return acc
+    },
+    {} as Record<string, string>
+  )
 })
 
 const mapsMap = computed(() => {
   if (!maps.value) return {} as Record<string, string>
-  return maps.value.reduce((acc, m) => { acc[m.uuid] = m.displayName; return acc }, {} as Record<string, string>)
+  return maps.value.reduce(
+    (acc, m) => {
+      acc[m.uuid] = m.displayName
+      return acc
+    },
+    {} as Record<string, string>
+  )
 })
 
-function toLineupItem(lineup: any): LineupItem {
+interface RawLineupRow {
+  id: string
+  title: string
+  agent_uuid: string
+  map_uuid: string
+  media: { url: string; sort_order: number; is_cover: boolean }[]
+}
+
+function toLineupItem(lineup: RawLineupRow): LineupItem {
   return {
     id: lineup.id,
     title: lineup.title,
     thumbnail: getLineupThumbnail(lineup.media || []),
     agentName: agentsMap.value[lineup.agent_uuid] || '',
-    mapName: mapsMap.value[lineup.map_uuid] || ''
+    mapName: mapsMap.value[lineup.map_uuid] || '',
   }
 }
 
 const availableLineups = computed(() => {
   if (!searchQuery.value) return allMyLineups.value
   const q = searchQuery.value.toLowerCase()
-  return allMyLineups.value.filter(l =>
-    l.title.toLowerCase().includes(q) ||
-    l.agentName.toLowerCase().includes(q) ||
-    l.mapName.toLowerCase().includes(q)
+  return allMyLineups.value.filter(
+    l =>
+      l.title.toLowerCase().includes(q) ||
+      l.agentName.toLowerCase().includes(q) ||
+      l.mapName.toLowerCase().includes(q)
   )
 })
 
@@ -209,19 +265,21 @@ async function fetchCollectionLineups() {
 
   const { data } = await supabase
     .from('collection_lineups')
-    .select(`
+    .select(
+      `
       lineup_id,
       lineups:lineup_id!inner(
         id, title, agent_uuid, map_uuid,
         media:lineup_media(url, sort_order, is_cover)
       )
-    `)
+    `
+    )
     .eq('collection_id', props.collectionId)
     .order('sort_order', { ascending: true })
 
   collectionLineups.value = (data ?? [])
-    .map((row: any) => row.lineups)
-    .filter(Boolean)
+    .map((row: { lineups: RawLineupRow | null }) => row.lineups)
+    .filter((l): l is RawLineupRow => Boolean(l))
     .map(toLineupItem)
 
   loadingCollection.value = false
@@ -234,7 +292,7 @@ async function addLineup(lineup: LineupItem) {
   const sortOrder = collectionLineups.value.length
   const { error } = await supabase
     .from('collection_lineups')
-    .insert({ collection_id: props.collectionId, lineup_id: lineup.id, sort_order: sortOrder })
+    .insert({ collection_id: props.collectionId, lineup_id: lineup.id, sort_order: sortOrder } as never)
 
   if (!error) {
     collectionLineups.value.push({ ...lineup, adding: false, removing: false })
@@ -261,11 +319,14 @@ async function removeLineup(lineup: LineupItem) {
   lineup.removing = false
 }
 
-watch(() => props.show, (val) => {
-  if (val) {
-    searchQuery.value = ''
-    fetchMyLineups()
-    fetchCollectionLineups()
+watch(
+  () => props.show,
+  val => {
+    if (val) {
+      searchQuery.value = ''
+      fetchMyLineups()
+      fetchCollectionLineups()
+    }
   }
-})
+)
 </script>

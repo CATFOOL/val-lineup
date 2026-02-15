@@ -9,18 +9,12 @@
 
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-6">
-          <NuxtLink
-            to="/browse"
-            class="text-gray-300 hover:text-white transition-colors"
-          >
+          <NuxtLink to="/browse" class="text-gray-300 hover:text-white transition-colors">
             Browse
           </NuxtLink>
 
           <div v-if="user" class="flex items-center gap-6">
-            <NuxtLink
-              to="/profile"
-              class="text-gray-300 hover:text-white transition-colors"
-            >
+            <NuxtLink to="/profile" class="text-gray-300 hover:text-white transition-colors">
               My Profile
             </NuxtLink>
             <NuxtLink
@@ -29,18 +23,12 @@
             >
               Create Lineup
             </NuxtLink>
-            <button
-              @click="signOut"
-              class="ml-4 text-gray-300 hover:text-white transition-colors"
-            >
+            <button class="ml-4 text-gray-300 hover:text-white transition-colors" @click="signOut">
               Logout
             </button>
           </div>
           <div v-else>
-            <NuxtLink
-              to="/login"
-              class="text-gray-300 hover:text-white transition-colors"
-            >
+            <NuxtLink to="/login" class="text-gray-300 hover:text-white transition-colors">
               Login
             </NuxtLink>
           </div>
@@ -48,24 +36,37 @@
 
         <!-- Mobile Menu Button -->
         <button
-          @click="mobileMenuOpen = !mobileMenuOpen"
           class="md:hidden p-2 text-gray-300 hover:text-white transition-colors"
           aria-label="Toggle menu"
+          @click="mobileMenuOpen = !mobileMenuOpen"
         >
-          <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            v-if="!mobileMenuOpen"
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
           <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </nav>
 
       <!-- Mobile Navigation -->
-      <div
-        v-show="mobileMenuOpen"
-        class="md:hidden border-t border-gray-700 py-4 space-y-3"
-      >
+      <div v-show="mobileMenuOpen" class="md:hidden border-t border-gray-700 py-4 space-y-3">
         <NuxtLink
           to="/browse"
           class="block text-gray-300 hover:text-white transition-colors py-2"
@@ -90,8 +91,11 @@
             Create Lineup
           </NuxtLink>
           <button
-            @click="signOut(); mobileMenuOpen = false"
             class="block w-full text-left text-gray-300 hover:text-white transition-colors py-2"
+            @click="
+              signOut()
+              mobileMenuOpen = false
+            "
           >
             Logout
           </button>
@@ -117,9 +121,12 @@ const mobileMenuOpen = ref(false)
 const route = useRoute()
 
 // Close mobile menu on route change
-watch(() => route.path, () => {
-  mobileMenuOpen.value = false
-})
+watch(
+  () => route.path,
+  () => {
+    mobileMenuOpen.value = false
+  }
+)
 
 const signOut = async () => {
   await supabase.auth.signOut()

@@ -18,18 +18,22 @@
         <!-- Desktop: vertical list with scroll -->
         <div class="hidden md:block map-scroll-container space-y-1 max-h-[350px]">
           <button
-            @click="$emit('update-filter', 'map', '')"
             class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-            :class="filters.map === '' ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'"
+            :class="
+              filters.map === '' ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'
+            "
+            @click="$emit('update-filter', 'map', '')"
           >
             Any
           </button>
           <button
             v-for="map in maps"
             :key="map.uuid"
-            @click="$emit('update-filter', 'map', map.uuid)"
             class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors"
-            :class="filters.map === map.uuid ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'"
+            :class="
+              filters.map === map.uuid ? 'bg-red-500 text-white' : 'text-gray-300 hover:bg-gray-700'
+            "
+            @click="$emit('update-filter', 'map', map.uuid)"
           >
             {{ map.displayName }}
           </button>
@@ -43,11 +47,11 @@
           <h3 class="text-sm font-medium text-gray-400 mb-2 md:mb-3">Search</h3>
           <input
             :value="filters.search"
-            @input="$emit('update-filter', 'search', ($event.target as HTMLInputElement).value)"
             type="text"
             placeholder="Search by title or description..."
             class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-          />
+            @input="$emit('update-filter', 'search', ($event.target as HTMLInputElement).value)"
+          >
         </div>
 
         <!-- Agent Filter -->
@@ -57,12 +61,20 @@
             <button
               v-for="agent in agents"
               :key="agent.uuid"
-              @click="$emit('select-agent', agent.uuid)"
               class="w-10 h-10 md:w-12 md:h-12 rounded-md overflow-hidden border-2 transition-all"
-              :class="filters.agent === agent.uuid ? 'border-red-500' : 'border-transparent opacity-50 hover:opacity-100'"
+              :class="
+                filters.agent === agent.uuid
+                  ? 'border-red-500'
+                  : 'border-transparent opacity-50 hover:opacity-100'
+              "
               :title="agent.displayName"
+              @click="$emit('select-agent', agent.uuid)"
             >
-              <img :src="agent.displayIcon" :alt="agent.displayName" class="w-full h-full object-cover" />
+              <img
+                :src="agent.displayIcon"
+                :alt="agent.displayName"
+                class="w-full h-full object-cover"
+              >
             </button>
           </div>
         </div>
@@ -74,12 +86,21 @@
             <button
               v-for="ability in selectedAgentAbilities"
               :key="ability.slot"
-              @click="$emit('toggle-ability', ability.slot)"
               class="w-10 h-10 md:w-12 md:h-12 rounded-md overflow-hidden border-2 transition-all bg-gray-700 flex items-center justify-center"
-              :class="filters.abilities.includes(ability.slot) ? 'border-red-500' : 'border-transparent opacity-50 hover:opacity-100'"
+              :class="
+                filters.abilities.includes(ability.slot)
+                  ? 'border-red-500'
+                  : 'border-transparent opacity-50 hover:opacity-100'
+              "
               :title="`${abilitySlotToKey(ability.slot)} - ${ability.displayName}`"
+              @click="$emit('toggle-ability', ability.slot)"
             >
-              <img v-if="ability.displayIcon" :src="ability.displayIcon" :alt="ability.displayName" class="w-7 h-7 md:w-8 md:h-8 object-contain" />
+              <img
+                v-if="ability.displayIcon"
+                :src="ability.displayIcon"
+                :alt="ability.displayName"
+                class="w-7 h-7 md:w-8 md:h-8 object-contain"
+              >
               <span v-else class="text-white text-xs">{{ abilitySlotToKey(ability.slot) }}</span>
             </button>
           </div>
@@ -94,9 +115,13 @@
               <button
                 v-for="site in sites"
                 :key="site.value"
-                @click="$emit('toggle-site', site.value)"
                 class="px-3 md:px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-                :class="filters.site === site.value ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                :class="
+                  filters.site === site.value
+                    ? 'bg-red-500 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                "
+                @click="$emit('toggle-site', site.value)"
               >
                 {{ site.label }}
               </button>
@@ -110,9 +135,13 @@
               <button
                 v-for="side in sides"
                 :key="side.value"
-                @click="$emit('toggle-side', side.value)"
                 class="px-3 md:px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-                :class="filters.side === side.value ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                :class="
+                  filters.side === side.value
+                    ? 'bg-red-500 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                "
+                @click="$emit('toggle-side', side.value)"
               >
                 {{ side.label }}
               </button>
@@ -138,7 +167,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  'update-filter': [key: keyof LineupFilters, value: any]
+  'update-filter': [key: keyof LineupFilters, value: LineupFilters[keyof LineupFilters]]
   'select-agent': [uuid: string]
   'toggle-ability': [slot: string]
   'toggle-site': [value: string]
@@ -178,5 +207,4 @@ defineEmits<{
 .map-scroll-container::-webkit-scrollbar-thumb:hover {
   background-color: #6b7280;
 }
-
 </style>

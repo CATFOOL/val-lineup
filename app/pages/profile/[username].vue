@@ -3,20 +3,22 @@
     <!-- Author Header -->
     <div v-if="profile" class="bg-gray-800/50 rounded-xl p-6 mb-8">
       <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
+        <div
+          class="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden"
+        >
           <img
             v-if="profile.avatar_url"
             :src="profile.avatar_url"
             :alt="profile.username"
             class="w-full h-full object-cover"
-          />
-          <span v-else class="text-2xl text-gray-400">{{ profile.username?.charAt(0)?.toUpperCase() }}</span>
+          >
+          <span v-else class="text-2xl text-gray-400">{{
+            profile.username?.charAt(0)?.toUpperCase()
+          }}</span>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-white">{{ profile.username }}</h1>
-          <p class="text-gray-400 text-sm">
-            Joined {{ formatDate(profile.created_at) }}
-          </p>
+          <p class="text-gray-400 text-sm">Joined {{ formatDate(profile.created_at) }}</p>
         </div>
       </div>
       <div class="mt-4 flex gap-6 text-sm">
@@ -26,7 +28,9 @@
         </div>
         <div>
           <span class="text-white font-semibold">{{ collectionsCount ?? 0 }}</span>
-          <span class="text-gray-400 ml-1">{{ collectionsCount === 1 ? 'Collection' : 'Collections' }}</span>
+          <span class="text-gray-400 ml-1">{{
+            collectionsCount === 1 ? 'Collection' : 'Collections'
+          }}</span>
         </div>
       </div>
     </div>
@@ -40,31 +44,47 @@
     <!-- Tabs -->
     <div v-if="profile" class="flex gap-2 mb-8">
       <button
-        @click="switchTab('lineups')"
         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-        :class="activeTab === 'lineups' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+        :class="
+          activeTab === 'lineups'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+        "
+        @click="switchTab('lineups')"
       >
         {{ isOwnProfile ? 'My Lineups' : 'Lineups' }}
       </button>
       <button
-        @click="switchTab('collections')"
         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-        :class="activeTab === 'collections' || activeTab === 'subscribed' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+        :class="
+          activeTab === 'collections' || activeTab === 'subscribed'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+        "
+        @click="switchTab('collections')"
       >
         Collections
       </button>
       <template v-if="isOwnProfile">
         <button
-          @click="switchTab('liked')"
           class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-          :class="activeTab === 'liked' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+          :class="
+            activeTab === 'liked'
+              ? 'bg-red-500 text-white'
+              : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+          "
+          @click="switchTab('liked')"
         >
           Liked
         </button>
         <button
-          @click="switchTab('bookmarked')"
           class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-          :class="activeTab === 'bookmarked' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+          :class="
+            activeTab === 'bookmarked'
+              ? 'bg-red-500 text-white'
+              : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+          "
+          @click="switchTab('bookmarked')"
         >
           Bookmarked
         </button>
@@ -73,7 +93,12 @@
 
     <!-- Filter Panel -->
     <LineupFilterPanel
-      v-if="profile && activeTab !== 'collections' && activeTab !== 'subscribed' && activeTab !== 'bookmarked'"
+      v-if="
+        profile &&
+        activeTab !== 'collections' &&
+        activeTab !== 'subscribed' &&
+        activeTab !== 'bookmarked'
+      "
       :filters="filters"
       :agents="agents"
       :maps="maps"
@@ -91,16 +116,24 @@
       <!-- Sub-tabs for Collections -->
       <div v-if="isOwnProfile" class="flex gap-2 mb-6">
         <button
-          @click="switchTab('collections')"
           class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          :class="activeTab === 'collections' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
+          :class="
+            activeTab === 'collections'
+              ? 'bg-gray-700 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+          "
+          @click="switchTab('collections')"
         >
           My Collections
         </button>
         <button
-          @click="switchTab('subscribed')"
           class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          :class="activeTab === 'subscribed' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
+          :class="
+            activeTab === 'subscribed'
+              ? 'bg-gray-700 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-800'
+          "
+          @click="switchTab('subscribed')"
         >
           Subscribed
         </button>
@@ -111,30 +144,35 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-white">
             {{ isOwnProfile ? 'My Collections' : 'Collections' }}
-            <span v-if="collections.length" class="text-gray-400 font-normal">({{ collections.length }}{{ collectionsHasMore ? '+' : '' }})</span>
+            <span v-if="collections.length" class="text-gray-400 font-normal"
+              >({{ collections.length }}{{ collectionsHasMore ? '+' : '' }})</span
+            >
           </h2>
           <button
             v-if="isOwnProfile"
-            @click="showCreateCollection = true"
             class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm transition-colors"
+            @click="showCreateCollection = true"
           >
             + New Collection
           </button>
         </div>
 
-        <div v-if="collectionsLoading && !collections.length" class="text-gray-400">Loading collections...</div>
-        <div v-else-if="collections.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <CollectionCard
-            v-for="col in collections"
-            :key="col.id"
-            :collection="col"
-          />
+        <div v-if="collectionsLoading && !collections.length" class="text-gray-400">
+          Loading collections...
+        </div>
+        <div
+          v-else-if="collections.length"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        >
+          <CollectionCard v-for="col in collections" :key="col.id" :collection="col" />
         </div>
         <div v-else class="text-gray-400">No collections yet.</div>
 
         <!-- Infinite scroll sentinel -->
         <div ref="collectionsSentinel" class="h-10 flex items-center justify-center mt-4">
-          <span v-if="collectionsLoading && collections.length" class="text-gray-500 text-sm">Loading more...</span>
+          <span v-if="collectionsLoading && collections.length" class="text-gray-500 text-sm"
+            >Loading more...</span
+          >
         </div>
       </div>
 
@@ -143,23 +181,34 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-white">
             Subscribed Collections
-            <span v-if="subscribedCollections.length" class="text-gray-400 font-normal">({{ subscribedCollections.length }}{{ subscribedCollectionsHasMore ? '+' : '' }})</span>
+            <span v-if="subscribedCollections.length" class="text-gray-400 font-normal"
+              >({{ subscribedCollections.length
+              }}{{ subscribedCollectionsHasMore ? '+' : '' }})</span
+            >
           </h2>
         </div>
 
-        <div v-if="subscribedCollectionsLoading && !subscribedCollections.length" class="text-gray-400">Loading collections...</div>
-        <div v-else-if="subscribedCollections.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <CollectionCard
-            v-for="col in subscribedCollections"
-            :key="col.id"
-            :collection="col"
-          />
+        <div
+          v-if="subscribedCollectionsLoading && !subscribedCollections.length"
+          class="text-gray-400"
+        >
+          Loading collections...
+        </div>
+        <div
+          v-else-if="subscribedCollections.length"
+          class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        >
+          <CollectionCard v-for="col in subscribedCollections" :key="col.id" :collection="col" />
         </div>
         <div v-else class="text-gray-400">No subscribed collections yet.</div>
 
         <!-- Infinite scroll sentinel -->
         <div ref="subscribedCollectionsSentinel" class="h-10 flex items-center justify-center mt-4">
-          <span v-if="subscribedCollectionsLoading && subscribedCollections.length" class="text-gray-500 text-sm">Loading more...</span>
+          <span
+            v-if="subscribedCollectionsLoading && subscribedCollections.length"
+            class="text-gray-500 text-sm"
+            >Loading more...</span
+          >
         </div>
       </div>
     </div>
@@ -169,42 +218,57 @@
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-white">
           My Bookmarks
-          <span v-if="bookmarkFolders.length" class="text-gray-400 font-normal">({{ bookmarkFolders.length }}{{ bookmarkFoldersHasMore ? '+' : '' }})</span>
+          <span v-if="bookmarkFolders.length" class="text-gray-400 font-normal"
+            >({{ bookmarkFolders.length }}{{ bookmarkFoldersHasMore ? '+' : '' }})</span
+          >
         </h2>
         <button
-          @click="showCreateBookmarkFolder = true"
           class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm transition-colors"
+          @click="showCreateBookmarkFolder = true"
         >
           + New Folder
         </button>
       </div>
 
-      <div v-if="bookmarkFoldersLoading && !bookmarkFolders.length" class="text-gray-400">Loading...</div>
-      <div v-else-if="bookmarkFolders.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <BookmarkFolderCard
-          v-for="folder in bookmarkFolders"
-          :key="folder.id"
-          :folder="folder"
-        />
+      <div v-if="bookmarkFoldersLoading && !bookmarkFolders.length" class="text-gray-400">
+        Loading...
+      </div>
+      <div
+        v-else-if="bookmarkFolders.length"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <BookmarkFolderCard v-for="folder in bookmarkFolders" :key="folder.id" :folder="folder" />
       </div>
       <div v-else class="text-gray-400">No bookmark folders yet.</div>
 
       <!-- Infinite scroll sentinel -->
       <div ref="bookmarkFoldersSentinel" class="h-10 flex items-center justify-center mt-4">
-        <span v-if="bookmarkFoldersLoading && bookmarkFolders.length" class="text-gray-500 text-sm">Loading more...</span>
+        <span v-if="bookmarkFoldersLoading && bookmarkFolders.length" class="text-gray-500 text-sm"
+          >Loading more...</span
+        >
       </div>
     </div>
 
     <div v-else-if="profile">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-white">
-          {{ activeTab === 'liked' ? 'Liked Lineups' : activeTab === 'bookmarked' ? 'Bookmarked Lineups' : isOwnProfile ? 'My Lineups' : 'Lineups' }}
-          <span v-if="lineups.length" class="text-gray-400 font-normal">({{ lineups.length }}{{ hasMore ? '+' : '' }} results)</span>
+          {{
+            activeTab === 'liked'
+              ? 'Liked Lineups'
+              : activeTab === 'bookmarked'
+                ? 'Bookmarked Lineups'
+                : isOwnProfile
+                  ? 'My Lineups'
+                  : 'Lineups'
+          }}
+          <span v-if="lineups.length" class="text-gray-400 font-normal"
+            >({{ lineups.length }}{{ hasMore ? '+' : '' }} results)</span
+          >
         </h2>
         <button
           v-if="hasActiveFilters"
-          @click="clearFilters"
           class="text-sm text-gray-400 hover:text-white"
+          @click="clearFilters"
         >
           Clear filters
         </button>
@@ -225,7 +289,13 @@
         />
       </div>
       <div v-else class="text-gray-400">
-        {{ activeTab === 'liked' ? 'No liked lineups yet.' : activeTab === 'bookmarked' ? 'No bookmarked lineups yet.' : 'No lineups found. Try adjusting your filters.' }}
+        {{
+          activeTab === 'liked'
+            ? 'No liked lineups yet.'
+            : activeTab === 'bookmarked'
+              ? 'No bookmarked lineups yet.'
+              : 'No lineups found. Try adjusting your filters.'
+        }}
       </div>
 
       <!-- Infinite scroll sentinel -->
@@ -237,10 +307,7 @@
 
   <!-- Create Collection Modal -->
   <Teleport to="body">
-    <div
-      v-if="showCreateCollection"
-      class="fixed inset-0 z-50 flex items-center justify-center"
-    >
+    <div v-if="showCreateCollection" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/60" @click="showCreateCollection = false" />
       <div class="relative bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
         <h3 class="text-lg font-semibold text-white mb-4">Create New Collection</h3>
@@ -250,20 +317,20 @@
           placeholder="Collection name..."
           class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none mb-6"
           @keyup.enter="createCollection"
-        />
+        >
         <div class="flex justify-end gap-3">
           <button
             type="button"
-            @click="showCreateCollection = false"
             class="px-4 py-2 rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+            @click="showCreateCollection = false"
           >
             Cancel
           </button>
           <button
             type="button"
-            @click="createCollection"
             :disabled="!newCollectionTitle.trim() || creatingCollection"
             class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-colors"
+            @click="createCollection"
           >
             {{ creatingCollection ? 'Creating...' : 'Create' }}
           </button>
@@ -287,20 +354,20 @@
           placeholder="Folder name..."
           class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none mb-6"
           @keyup.enter="createBookmarkFolder"
-        />
+        >
         <div class="flex justify-end gap-3">
           <button
             type="button"
-            @click="showCreateBookmarkFolder = false"
             class="px-4 py-2 rounded-md bg-gray-700 text-gray-200 hover:bg-gray-600 transition-colors"
+            @click="showCreateBookmarkFolder = false"
           >
             Cancel
           </button>
           <button
             type="button"
-            @click="createBookmarkFolder"
             :disabled="!newBookmarkFolderTitle.trim() || creatingBookmarkFolder"
             class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-colors"
+            @click="createBookmarkFolder"
           >
             {{ creatingBookmarkFolder ? 'Creating...' : 'Create' }}
           </button>
@@ -311,7 +378,14 @@
 </template>
 
 <script setup lang="ts">
-import type { LineupWithRelations, CollectionWithRelations, BookmarkFolderWithCount } from '~/types/database.types'
+import type {
+  LineupWithRelations,
+  CollectionWithRelations,
+  BookmarkFolderWithCount,
+  RawLineupWithCounts,
+  RawCollectionWithCounts,
+  RawBookmarkFolderWithCount,
+} from '~/types/database.types'
 
 const PAGE_SIZE = 20
 
@@ -323,11 +397,11 @@ interface ProfileData {
 }
 
 const route = useRoute()
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
 const username = route.params.username as string
-const currentUserId = computed(() => (user.value as any)?.id ?? (user.value as any)?.sub)
+const currentUserId = computed(() => user.value?.id)
 
 // Use profile page state composable (scroll, cache, tab)
 const {
@@ -338,7 +412,7 @@ const {
   saveScrollPosition,
   restoreScrollPosition,
   setCachedLineups,
-  clearCachedLineups
+  clearCachedLineups,
 } = useProfileState(username)
 
 // Track deleted lineups to remove from cache
@@ -359,13 +433,13 @@ const {
   toggleSide,
   hasActiveFilters,
   clearFilters,
-  abilitySlotToKey
+  abilitySlotToKey,
 } = useLineupFilters({
   persistKey: `profile-filters-${username}`,
   onFiltersChange: () => {
     clearCachedLineups()
     fetchLineups(true)
-  }
+  },
 })
 
 // Fetch profile by username
@@ -373,11 +447,7 @@ const profile = ref<ProfileData | null>(null)
 const profilePending = ref(true)
 
 const { data: profileData } = await useAsyncData(`profile-${username}`, async () => {
-  const { data } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('username', username)
-    .single()
+  const { data } = await supabase.from('profiles').select('*').eq('username', username).single()
   return data as ProfileData | null
 })
 
@@ -396,18 +466,23 @@ const { data: lineupsCount } = await useAsyncData(`profile-lineups-count-${usern
 })
 
 // Fetch total collections count for header
-const { data: collectionsCount } = await useAsyncData(`profile-collections-count-${username}`, async () => {
-  if (!profile.value) return 0
-  const { count } = await supabase
-    .from('collections')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', profile.value.id)
-    .eq('is_published', true)
-  return count || 0
-})
+const { data: collectionsCount } = await useAsyncData(
+  `profile-collections-count-${username}`,
+  async () => {
+    if (!profile.value) return 0
+    const { count } = await supabase
+      .from('collections')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', profile.value.id)
+      .eq('is_published', true)
+    return count || 0
+  }
+)
 
 // Check if viewing own profile
-const isOwnProfile = computed(() => !!profile.value && !!currentUserId.value && profile.value.id === currentUserId.value)
+const isOwnProfile = computed(
+  () => !!profile.value && !!currentUserId.value && profile.value.id === currentUserId.value
+)
 
 // Tab switching
 function switchTab(tab: 'lineups' | 'liked' | 'bookmarked' | 'collections' | 'subscribed') {
@@ -426,7 +501,9 @@ function switchTab(tab: 'lineups' | 'liked' | 'bookmarked' | 'collections' | 'su
 }
 
 // Pagination state - use cached data if available
-const lineups = ref<LineupWithRelations[]>(cachedLineups.value.length ? [...cachedLineups.value] : [])
+const lineups = ref<LineupWithRelations[]>(
+  cachedLineups.value.length ? [...cachedLineups.value] : []
+)
 const loading = ref(false)
 const hasMore = ref(cachedLineups.value.length ? cachedHasMore.value : true)
 const lineupsError = ref<string | null>(null)
@@ -448,13 +525,14 @@ async function fetchLineups(reset = false) {
   const from = lineups.value.length
   const to = from + PAGE_SIZE - 1
 
-  let data: any[] | null = null
-  let error: any = null
+  let data: Record<string, unknown>[] | null = null
+  let error: { message: string } | null = null
 
   if (activeTab.value === 'liked') {
     let query = supabase
       .from('lineup_likes')
-      .select(`
+      .select(
+        `
         lineup_id,
         lineups:lineup_id!inner(
           *,
@@ -463,7 +541,8 @@ async function fetchLineups(reset = false) {
           likes_count:lineup_likes(count),
           bookmarks_count:lineup_bookmarks(count)
         )
-      `)
+      `
+      )
       .eq('user_id', profile.value.id)
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -475,7 +554,9 @@ async function fetchLineups(reset = false) {
     if (filters.value.side) query = query.eq('lineups.side', filters.value.side)
     if (filters.value.search) {
       const pattern = `%${filters.value.search}%`
-      query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`, { foreignTable: 'lineups' })
+      query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`, {
+        foreignTable: 'lineups',
+      })
     }
 
     const res = await query
@@ -484,7 +565,8 @@ async function fetchLineups(reset = false) {
   } else if (activeTab.value === 'bookmarked') {
     let query = supabase
       .from('lineup_bookmarks')
-      .select(`
+      .select(
+        `
         lineup_id,
         lineups:lineup_id!inner(
           *,
@@ -493,7 +575,8 @@ async function fetchLineups(reset = false) {
           likes_count:lineup_likes(count),
           bookmarks_count:lineup_bookmarks(count)
         )
-      `)
+      `
+      )
       .eq('user_id', profile.value.id)
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -505,7 +588,9 @@ async function fetchLineups(reset = false) {
     if (filters.value.side) query = query.eq('lineups.side', filters.value.side)
     if (filters.value.search) {
       const pattern = `%${filters.value.search}%`
-      query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`, { foreignTable: 'lineups' })
+      query = query.or(`title.ilike.${pattern},description.ilike.${pattern}`, {
+        foreignTable: 'lineups',
+      })
     }
 
     const res = await query
@@ -514,13 +599,15 @@ async function fetchLineups(reset = false) {
   } else {
     let query = supabase
       .from('lineups')
-      .select(`
+      .select(
+        `
         *,
         profile:profiles(*),
         media:lineup_media(*),
         likes_count:lineup_likes(count),
         bookmarks_count:lineup_bookmarks(count)
-      `)
+      `
+      )
       .eq('user_id', profile.value.id)
       .order('created_at', { ascending: false })
       .range(from, to)
@@ -553,18 +640,18 @@ async function fetchLineups(reset = false) {
 
   if (activeTab.value === 'liked' || activeTab.value === 'bookmarked') {
     items = (data ?? [])
-      .map((row: any) => row.lineups)
+      .map((row: { lineups: RawLineupWithCounts }) => row.lineups)
       .filter(Boolean)
-      .map((item: any) => ({
+      .map((item: RawLineupWithCounts) => ({
         ...item,
         likes_count: item.likes_count?.[0]?.count ?? 0,
-        bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0
+        bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0,
       }))
   } else {
-    items = (data ?? []).map((item: any) => ({
+    items = (data ?? []).map((item: RawLineupWithCounts) => ({
       ...item,
       likes_count: item.likes_count?.[0]?.count ?? 0,
-      bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0
+      bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0,
     }))
   }
 
@@ -615,7 +702,7 @@ async function createCollection() {
     .insert({
       user_id: currentUserId.value,
       title: newCollectionTitle.value.trim(),
-      is_published: true
+      is_published: true,
     })
     .select('*, profile:profiles(*)')
     .single()
@@ -625,8 +712,8 @@ async function createCollection() {
       ...newCol,
       lineups_count: 0,
       subscribers_count: 0,
-      cover_lineups: []
-    } as any)
+      cover_lineups: [],
+    } as CollectionWithRelations)
   }
 
   newCollectionTitle.value = ''
@@ -651,7 +738,8 @@ async function fetchCollections(reset = false) {
 
   let query = supabase
     .from('collections')
-    .select(`
+    .select(
+      `
       *,
       profile:profiles(*),
       lineups_count:collection_lineups(count),
@@ -661,7 +749,8 @@ async function fetchCollections(reset = false) {
           media:lineup_media(*)
         )
       )
-    `)
+    `
+    )
     .eq('user_id', profile.value.id)
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -677,14 +766,14 @@ async function fetchCollections(reset = false) {
     return
   }
 
-  const items = (data ?? []).map((item: any) => ({
+  const items = (data ?? []).map((item: RawCollectionWithCounts & Record<string, unknown>) => ({
     ...item,
     lineups_count: item.lineups_count?.[0]?.count ?? 0,
     subscribers_count: item.subscribers_count?.[0]?.count ?? 0,
     cover_lineups: (item.collection_lineups ?? [])
-      .map((cl: any) => cl.lineup)
+      .map((cl: { lineup: unknown }) => cl.lineup)
       .filter(Boolean)
-      .slice(0, 4)
+      .slice(0, 4),
   })) as CollectionWithRelations[]
 
   collections.value.push(...items)
@@ -715,7 +804,8 @@ async function fetchSubscribedCollections(reset = false) {
 
   const { data, error } = await supabase
     .from('collection_subscriptions')
-    .select(`
+    .select(
+      `
       collection_id,
       collections:collection_id!inner(
         *,
@@ -728,7 +818,8 @@ async function fetchSubscribedCollections(reset = false) {
           )
         )
       )
-    `)
+    `
+    )
     .eq('user_id', profile.value.id)
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -739,16 +830,16 @@ async function fetchSubscribedCollections(reset = false) {
   }
 
   const items = (data ?? [])
-    .map((row: any) => row.collections)
+    .map((row: { collections: RawCollectionWithCounts & Record<string, unknown> }) => row.collections)
     .filter(Boolean)
-    .map((item: any) => ({
+    .map((item: RawCollectionWithCounts & Record<string, unknown>) => ({
       ...item,
       lineups_count: item.lineups_count?.[0]?.count ?? 0,
       subscribers_count: item.subscribers_count?.[0]?.count ?? 0,
       cover_lineups: (item.collection_lineups ?? [])
-        .map((cl: any) => cl.lineup)
+        .map((cl: { lineup: unknown }) => cl.lineup)
         .filter(Boolean)
-        .slice(0, 4)
+        .slice(0, 4),
     })) as CollectionWithRelations[]
 
   subscribedCollections.value.push(...items)
@@ -777,7 +868,7 @@ async function createBookmarkFolder() {
     .insert({
       user_id: currentUserId.value,
       title: newBookmarkFolderTitle.value.trim(),
-      is_default: false
+      is_default: false,
     })
     .select('*')
     .single()
@@ -786,7 +877,7 @@ async function createBookmarkFolder() {
     bookmarkFolders.value.unshift({
       ...newFolder,
       lineups_count: 0,
-      cover_bookmarks: []
+      cover_bookmarks: [],
     })
   }
 
@@ -812,7 +903,8 @@ async function fetchBookmarkFolders(reset = false) {
 
   const { data, error } = await supabase
     .from('bookmark_folders')
-    .select(`
+    .select(
+      `
       *,
       lineups_count:lineup_bookmarks(count),
       cover_bookmarks:lineup_bookmarks(
@@ -820,7 +912,8 @@ async function fetchBookmarkFolders(reset = false) {
           media:lineup_media(*)
         )
       )
-    `)
+    `
+    )
     .eq('user_id', profile.value.id)
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: false })
@@ -831,10 +924,10 @@ async function fetchBookmarkFolders(reset = false) {
     return
   }
 
-  const items = (data ?? []).map((item: any) => ({
+  const items = (data ?? []).map((item: RawBookmarkFolderWithCount & Record<string, unknown>) => ({
     ...item,
     lineups_count: item.lineups_count?.[0]?.count ?? 0,
-    cover_bookmarks: (item.cover_bookmarks ?? []).slice(0, 4)
+    cover_bookmarks: (item.cover_bookmarks ?? []).slice(0, 4),
   })) as BookmarkFolderWithCover[]
 
   bookmarkFolders.value.push(...items)
@@ -844,10 +937,13 @@ async function fetchBookmarkFolders(reset = false) {
 
 // Debounced search (separate from other filters handled by composable)
 let searchTimer: ReturnType<typeof setTimeout> | null = null
-watch(() => filters.value.search, () => {
-  if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => fetchLineups(true), 300)
-})
+watch(
+  () => filters.value.search,
+  () => {
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => fetchLineups(true), 300)
+  }
+)
 
 // Infinite scroll with IntersectionObserver
 let observer: IntersectionObserver | null = null
@@ -857,7 +953,7 @@ let bookmarkFoldersObserver: IntersectionObserver | null = null
 
 onMounted(() => {
   observer = new IntersectionObserver(
-    (entries) => {
+    entries => {
       if (entries[0]?.isIntersecting && hasMore.value && !loading.value) {
         fetchLineups()
       }
@@ -867,7 +963,7 @@ onMounted(() => {
   if (sentinel.value) observer.observe(sentinel.value)
 
   collectionsObserver = new IntersectionObserver(
-    (entries) => {
+    entries => {
       if (entries[0]?.isIntersecting && collectionsHasMore.value && !collectionsLoading.value) {
         fetchCollections()
       }
@@ -877,18 +973,27 @@ onMounted(() => {
   if (collectionsSentinel.value) collectionsObserver.observe(collectionsSentinel.value)
 
   subscribedCollectionsObserver = new IntersectionObserver(
-    (entries) => {
-      if (entries[0]?.isIntersecting && subscribedCollectionsHasMore.value && !subscribedCollectionsLoading.value) {
+    entries => {
+      if (
+        entries[0]?.isIntersecting &&
+        subscribedCollectionsHasMore.value &&
+        !subscribedCollectionsLoading.value
+      ) {
         fetchSubscribedCollections()
       }
     },
     { rootMargin: '200px' }
   )
-  if (subscribedCollectionsSentinel.value) subscribedCollectionsObserver.observe(subscribedCollectionsSentinel.value)
+  if (subscribedCollectionsSentinel.value)
+    subscribedCollectionsObserver.observe(subscribedCollectionsSentinel.value)
 
   bookmarkFoldersObserver = new IntersectionObserver(
-    (entries) => {
-      if (entries[0]?.isIntersecting && bookmarkFoldersHasMore.value && !bookmarkFoldersLoading.value) {
+    entries => {
+      if (
+        entries[0]?.isIntersecting &&
+        bookmarkFoldersHasMore.value &&
+        !bookmarkFoldersLoading.value
+      ) {
         fetchBookmarkFolders()
       }
     },
@@ -914,7 +1019,7 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 </script>

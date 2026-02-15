@@ -3,16 +3,24 @@
     <!-- Browse Mode Toggle -->
     <div class="flex gap-2 mb-8">
       <button
-        @click="switchMode('lineups')"
         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-        :class="browseMode === 'lineups' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+        :class="
+          browseMode === 'lineups'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+        "
+        @click="switchMode('lineups')"
       >
         Lineups
       </button>
       <button
-        @click="switchMode('collections')"
         class="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
-        :class="browseMode === 'collections' ? 'bg-red-500 text-white' : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'"
+        :class="
+          browseMode === 'collections'
+            ? 'bg-red-500 text-white'
+            : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700'
+        "
+        @click="switchMode('collections')"
       >
         Collections
       </button>
@@ -38,12 +46,14 @@
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-white">
           Top Results
-          <span v-if="lineups.length" class="text-gray-400 font-normal">({{ lineups.length }}{{ hasMore ? '+' : '' }} results)</span>
+          <span v-if="lineups.length" class="text-gray-400 font-normal"
+            >({{ lineups.length }}{{ hasMore ? '+' : '' }} results)</span
+          >
         </h2>
         <button
           v-if="hasActiveFilters"
-          @click="clearFilters"
           class="text-sm text-gray-400 hover:text-white"
+          @click="clearFilters"
         >
           Clear filters
         </button>
@@ -74,44 +84,49 @@
         <h3 class="text-sm font-medium text-gray-400 mb-3">Search</h3>
         <input
           :value="collectionsSearch"
-          @input="setCollectionsSearch(($event.target as HTMLInputElement).value)"
           type="text"
           placeholder="Search collections by title..."
           class="w-full px-3 py-2 rounded-md bg-gray-700 text-white text-sm placeholder-gray-500 border border-gray-600 focus:border-red-500 focus:outline-none"
-        />
+          @input="setCollectionsSearch(($event.target as HTMLInputElement).value)"
+        >
       </div>
 
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-white">
           Collections
-          <span v-if="browseCollections.length" class="text-gray-400 font-normal">({{ browseCollections.length }}{{ collectionsHasMore ? '+' : '' }})</span>
+          <span v-if="browseCollections.length" class="text-gray-400 font-normal"
+            >({{ browseCollections.length }}{{ collectionsHasMore ? '+' : '' }})</span
+          >
         </h2>
       </div>
 
-      <div v-if="collectionsLoading && !browseCollections.length" class="text-gray-400">Loading collections...</div>
-      <div v-else-if="browseCollections.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <CollectionCard
-          v-for="col in browseCollections"
-          :key="col.id"
-          :collection="col"
-        />
+      <div v-if="collectionsLoading && !browseCollections.length" class="text-gray-400">
+        Loading collections...
+      </div>
+      <div
+        v-else-if="browseCollections.length"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <CollectionCard v-for="col in browseCollections" :key="col.id" :collection="col" />
       </div>
       <div v-else class="text-gray-400">No collections found.</div>
 
       <!-- Infinite scroll sentinel -->
       <div ref="collectionsSentinel" class="h-10 flex items-center justify-center mt-4">
-        <span v-if="collectionsLoading && browseCollections.length" class="text-gray-500 text-sm">Loading more...</span>
+        <span v-if="collectionsLoading && browseCollections.length" class="text-gray-500 text-sm"
+          >Loading more...</span
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { LineupWithRelations, CollectionWithRelations } from '~/types/database.types'
+import type { LineupWithRelations, CollectionWithRelations, RawLineupWithCounts, RawCollectionWithCounts } from '~/types/database.types'
 
 const PAGE_SIZE = 20
 
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 
 // Use shared filter composable with persistence
 const {
@@ -129,13 +144,13 @@ const {
   hasActiveFilters,
   clearFilters,
   applyFiltersToQuery,
-  abilitySlotToKey
+  abilitySlotToKey,
 } = useLineupFilters({
   persistKey: 'browse-filters',
   onFiltersChange: () => {
     clearCachedLineups()
     fetchLineups(true)
-  }
+  },
 })
 
 // Use browse page state composable (scroll, cache, mode)
@@ -149,14 +164,14 @@ const {
   saveScrollPosition,
   restoreScrollPosition,
   setCachedLineups,
-  clearCachedLineups
+  clearCachedLineups,
 } = useBrowseState()
 
 // Track deleted lineups to remove from cache
 const { deletedLineupIds, updatedLineupIds, hasNewLineup } = useLineupEvents()
 
 // Collections state (not persisted - will refetch)
-const browseCollections = ref<(CollectionWithRelations & { cover_lineups?: any[] })[]>([])
+const browseCollections = ref<(CollectionWithRelations & { cover_lineups?: unknown[] })[]>([])
 const collectionsLoading = ref(false)
 const collectionsHasMore = ref(true)
 const collectionsSentinel = ref<HTMLElement | null>(null)
@@ -184,7 +199,8 @@ async function fetchBrowseCollections(reset = false) {
 
   let query = supabase
     .from('collections')
-    .select(`
+    .select(
+      `
       *,
       profile:profiles(*),
       lineups_count:collection_lineups(count),
@@ -194,7 +210,8 @@ async function fetchBrowseCollections(reset = false) {
           media:lineup_media(url, sort_order, is_cover)
         )
       )
-    `)
+    `
+    )
     .eq('is_published', true)
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -206,15 +223,15 @@ async function fetchBrowseCollections(reset = false) {
 
   const { data } = await query
 
-  const items = (data ?? []).map((item: any) => ({
+  const items = (data ?? []).map((item: RawCollectionWithCounts & Record<string, unknown>) => ({
     ...item,
     lineups_count: item.lineups_count?.[0]?.count ?? 0,
     subscribers_count: item.subscribers_count?.[0]?.count ?? 0,
     cover_lineups: (item.cover_lineups ?? [])
-      .map((cl: any) => cl.lineups)
+      .map((cl: { lineups: unknown }) => cl.lineups)
       .filter(Boolean)
-      .slice(0, 4)
-  })) as (CollectionWithRelations & { cover_lineups?: any[] })[]
+      .slice(0, 4),
+  })) as (CollectionWithRelations & { cover_lineups?: unknown[] })[]
 
   browseCollections.value.push(...items)
   collectionsHasMore.value = items.length === PAGE_SIZE
@@ -223,13 +240,18 @@ async function fetchBrowseCollections(reset = false) {
 
 // Debounced collections search
 let collectionsSearchTimer: ReturnType<typeof setTimeout> | null = null
-watch(() => collectionsSearch.value, () => {
-  if (collectionsSearchTimer) clearTimeout(collectionsSearchTimer)
-  collectionsSearchTimer = setTimeout(() => fetchBrowseCollections(true), 300)
-})
+watch(
+  () => collectionsSearch.value,
+  () => {
+    if (collectionsSearchTimer) clearTimeout(collectionsSearchTimer)
+    collectionsSearchTimer = setTimeout(() => fetchBrowseCollections(true), 300)
+  }
+)
 
 // Pagination state - use cached data if available
-const lineups = ref<LineupWithRelations[]>(cachedLineups.value.length ? [...cachedLineups.value] : [])
+const lineups = ref<LineupWithRelations[]>(
+  cachedLineups.value.length ? [...cachedLineups.value] : []
+)
 const loading = ref(false)
 const hasMore = ref(cachedLineups.value.length ? cachedHasMore.value : true)
 const sentinel = ref<HTMLElement | null>(null)
@@ -250,13 +272,15 @@ async function fetchLineups(reset = false) {
 
   let query = supabase
     .from('lineups')
-    .select(`
+    .select(
+      `
       *,
       profile:profiles(*),
       media:lineup_media(*),
       likes_count:lineup_likes(count),
       bookmarks_count:lineup_bookmarks(count)
-    `)
+    `
+    )
     .eq('is_published', true)
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -266,10 +290,10 @@ async function fetchLineups(reset = false) {
 
   const { data } = await query
 
-  const items = (data ?? []).map((item: any) => ({
+  const items = (data ?? []).map((item: RawLineupWithCounts) => ({
     ...item,
     likes_count: item.likes_count?.[0]?.count ?? 0,
-    bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0
+    bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0,
   })) as LineupWithRelations[]
 
   lineups.value.push(...items)
@@ -284,13 +308,16 @@ if (!cachedLineups.value.length) {
 
 // Debounced search (separate from other filters)
 let searchTimer: ReturnType<typeof setTimeout> | null = null
-watch(() => filters.value.search, () => {
-  if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => {
-    clearCachedLineups()
-    fetchLineups(true)
-  }, 300)
-})
+watch(
+  () => filters.value.search,
+  () => {
+    if (searchTimer) clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
+      clearCachedLineups()
+      fetchLineups(true)
+    }, 300)
+  }
+)
 
 // Infinite scroll with IntersectionObserver
 let observer: IntersectionObserver | null = null
@@ -314,7 +341,7 @@ onMounted(() => {
   }
 
   observer = new IntersectionObserver(
-    (entries) => {
+    entries => {
       if (entries[0]?.isIntersecting && hasMore.value && !loading.value) {
         fetchLineups()
       }
@@ -324,7 +351,7 @@ onMounted(() => {
   if (sentinel.value) observer.observe(sentinel.value)
 
   collectionsObserver = new IntersectionObserver(
-    (entries) => {
+    entries => {
       if (entries[0]?.isIntersecting && collectionsHasMore.value && !collectionsLoading.value) {
         fetchBrowseCollections()
       }

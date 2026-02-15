@@ -19,7 +19,7 @@ export function useBrowseState() {
     collectionsSearch: '',
     scrollPosition: 0,
     lineups: [],
-    hasMore: true
+    hasMore: true,
   }))
 
   const browseMode = computed(() => state.value.browseMode)
@@ -71,6 +71,6 @@ export function useBrowseState() {
     saveScrollPosition,
     restoreScrollPosition,
     setCachedLineups,
-    clearCachedLineups
+    clearCachedLineups,
   }
 }

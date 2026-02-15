@@ -60,6 +60,6 @@ export function useLineupEvents() {
     clearUpdatedIds,
     markAsCreated,
     clearCreatedFlag,
-    hasModifiedLineups
+    hasModifiedLineups,
   }
 }

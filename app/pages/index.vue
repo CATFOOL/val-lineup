@@ -42,9 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import type { LineupWithRelations } from '~/types/database.types'
+import type { LineupWithRelations, RawLineupWithCounts } from '~/types/database.types'
 
-const supabase = useSupabaseClient<any>()
+const supabase = useSupabaseClient()
 const { getAgents, getMaps } = useValorantApi()
 
 // Fetch agents and maps from Valorant API
@@ -54,39 +54,47 @@ const { data: maps } = await useAsyncData('valorant-maps', () => getMaps())
 // Create maps for quick lookup
 const agentsMap = computed(() => {
   if (!agents.value) return {}
-  return agents.value.reduce((acc, agent) => {
-    acc[agent.uuid] = agent
-    return acc
-  }, {} as Record<string, typeof agents.value[0]>)
+  return agents.value.reduce(
+    (acc, agent) => {
+      acc[agent.uuid] = agent
+      return acc
+    },
+    {} as Record<string, (typeof agents.value)[0]>
+  )
 })
 
 const mapsMap = computed(() => {
   if (!maps.value) return {}
-  return maps.value.reduce((acc, map) => {
-    acc[map.uuid] = map
-    return acc
-  }, {} as Record<string, typeof maps.value[0]>)
+  return maps.value.reduce(
+    (acc, map) => {
+      acc[map.uuid] = map
+      return acc
+    },
+    {} as Record<string, (typeof maps.value)[0]>
+  )
 })
 
 // Fetch lineups from Supabase
 const { data: lineups, pending } = await useAsyncData('latest-lineups', async () => {
   const { data } = await supabase
     .from('lineups')
-    .select(`
+    .select(
+      `
       *,
       profile:profiles(*),
       media:lineup_media(*),
       likes_count:lineup_likes(count),
       bookmarks_count:lineup_bookmarks(count)
-    `)
+    `
+    )
     .eq('is_published', true)
     .order('created_at', { ascending: false })
     .limit(20)
 
-  return (data ?? []).map((item: any) => ({
+  return (data ?? []).map((item: RawLineupWithCounts) => ({
     ...item,
     likes_count: item.likes_count?.[0]?.count ?? 0,
-    bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0
+    bookmarks_count: item.bookmarks_count?.[0]?.count ?? 0,
   })) as LineupWithRelations[]
 })
 </script>

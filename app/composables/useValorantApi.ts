@@ -60,15 +60,12 @@ const API_BASE = 'https://valorant-api.com/v1'
 export const useValorantApi = () => {
   // 获取所有可玩角色 (按角色分类排序，同分类内按名称字母排序)
   const getAgents = async (language: string = 'en-US'): Promise<ValorantAgent[]> => {
-    const { data } = await useFetch<ValorantApiResponse<ValorantAgent[]>>(
-      `${API_BASE}/agents`,
-      {
-        query: {
-          isPlayableCharacter: true,
-          language
-        }
-      }
-    )
+    const { data } = await useFetch<ValorantApiResponse<ValorantAgent[]>>(`${API_BASE}/agents`, {
+      query: {
+        isPlayableCharacter: true,
+        language,
+      },
+    })
     const agents = data.value?.data || []
 
     // 按名称字母排序
@@ -76,7 +73,9 @@ export const useValorantApi = () => {
   }
 
   // 获取按角色分类的角色 (每个分类内按名称字母排序)
-  const getAgentsGroupedByRole = async (language: string = 'en-US'): Promise<Record<string, ValorantAgent[]>> => {
+  const getAgentsGroupedByRole = async (
+    language: string = 'en-US'
+  ): Promise<Record<string, ValorantAgent[]>> => {
     const agents = await getAgents(language)
 
     // 定义角色分类顺序
@@ -115,59 +114,62 @@ export const useValorantApi = () => {
   }
 
   // 获取单个角色
-  const getAgent = async (uuid: string, language: string = 'en-US'): Promise<ValorantAgent | null> => {
+  const getAgent = async (
+    uuid: string,
+    language: string = 'en-US'
+  ): Promise<ValorantAgent | null> => {
     const { data } = await useFetch<ValorantApiResponse<ValorantAgent>>(
       `${API_BASE}/agents/${uuid}`,
       {
-        query: { language }
+        query: { language },
       }
     )
     return data.value?.data || null
   }
 
   // 通过名称查找角色
-  const getAgentByName = async (name: string, language: string = 'en-US'): Promise<ValorantAgent | null> => {
+  const getAgentByName = async (
+    name: string,
+    language: string = 'en-US'
+  ): Promise<ValorantAgent | null> => {
     const agents = await getAgents(language)
-    return agents.find(a =>
-      a.displayName.toLowerCase() === name.toLowerCase() ||
-      a.developerName.toLowerCase() === name.toLowerCase()
-    ) || null
+    return (
+      agents.find(
+        a =>
+          a.displayName.toLowerCase() === name.toLowerCase() ||
+          a.developerName.toLowerCase() === name.toLowerCase()
+      ) || null
+    )
   }
 
   // 获取所有地图 (按名称字母排序)
   const getMaps = async (language: string = 'en-US'): Promise<ValorantMap[]> => {
-    const { data } = await useFetch<ValorantApiResponse<ValorantMap[]>>(
-      `${API_BASE}/maps`,
-      {
-        query: { language }
-      }
-    )
+    const { data } = await useFetch<ValorantApiResponse<ValorantMap[]>>(`${API_BASE}/maps`, {
+      query: { language },
+    })
     // 过滤掉练习场等非标准地图，并按名称字母排序
     return (data.value?.data || [])
-      .filter(map =>
-        map.tacticalDescription !== null &&
-        !map.displayName.toLowerCase().includes('range')
+      .filter(
+        map => map.tacticalDescription !== null && !map.displayName.toLowerCase().includes('range')
       )
       .sort((a, b) => a.displayName.localeCompare(b.displayName))
   }
 
   // 获取单个地图
   const getMap = async (uuid: string, language: string = 'en-US'): Promise<ValorantMap | null> => {
-    const { data } = await useFetch<ValorantApiResponse<ValorantMap>>(
-      `${API_BASE}/maps/${uuid}`,
-      {
-        query: { language }
-      }
-    )
+    const { data } = await useFetch<ValorantApiResponse<ValorantMap>>(`${API_BASE}/maps/${uuid}`, {
+      query: { language },
+    })
     return data.value?.data || null
   }
 
   // 通过名称查找地图
-  const getMapByName = async (name: string, language: string = 'en-US'): Promise<ValorantMap | null> => {
+  const getMapByName = async (
+    name: string,
+    language: string = 'en-US'
+  ): Promise<ValorantMap | null> => {
     const maps = await getMaps(language)
-    return maps.find(m =>
-      m.displayName.toLowerCase() === name.toLowerCase()
-    ) || null
+    return maps.find(m => m.displayName.toLowerCase() === name.toLowerCase()) || null
   }
 
   // 将 ability slot 转换为快捷键
@@ -178,11 +180,11 @@ export const useValorantApi = () => {
   // - Ultimate -> X
   const abilitySlotToKey = (slot: string): string => {
     const mapping: Record<string, string> = {
-      'Ability1': 'Q',
-      'Ability2': 'E',
-      'Grenade': 'C',
-      'Ultimate': 'X',
-      'Passive': 'Passive'
+      Ability1: 'Q',
+      Ability2: 'E',
+      Grenade: 'C',
+      Ultimate: 'X',
+      Passive: 'Passive',
     }
     return mapping[slot] || slot
   }
@@ -190,10 +192,10 @@ export const useValorantApi = () => {
   // 将快捷键转换为 slot
   const keyToAbilitySlot = (key: string): string => {
     const mapping: Record<string, string> = {
-      'Q': 'Ability1',
-      'E': 'Ability2',
-      'C': 'Grenade',
-      'X': 'Ultimate'
+      Q: 'Ability1',
+      E: 'Ability2',
+      C: 'Grenade',
+      X: 'Ultimate',
     }
     return mapping[key.toUpperCase()] || key
   }
@@ -207,6 +209,6 @@ export const useValorantApi = () => {
     getMap,
     getMapByName,
     abilitySlotToKey,
-    keyToAbilitySlot
+    keyToAbilitySlot,
   }
 }
